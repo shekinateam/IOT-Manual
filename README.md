@@ -51,8 +51,7 @@
     .chip{
       font-size:11px; padding:2px 8px; border-radius:999px;
       border:1px solid var(--bd); color:var(--muted); margin-left:auto;
-      flex:0 0 auto;
-      opacity:.75;
+      flex:0 0 auto; opacity:.75;
     }
 
     .main{padding:22px; max-width:1100px; width:100%;}
@@ -153,10 +152,7 @@
       background:rgba(122,162,255,.14);
     }
 
-    .logsum{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      line-height:1.3;
-    }
+    .logsum{display:flex; gap:10px; align-items:center; flex-wrap:wrap; line-height:1.3;}
     .logsum .dt{color:var(--muted); font-weight:800; font-size:12px;}
     .logsum .store{font-weight:900;}
     .badge{
@@ -286,8 +282,8 @@
 <script>
 const CONFIG = {
   SHEET_ID: "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4",
-  WIRELESS_GID: "890902374",
-  LOG_GID: "806380229"
+  WIRELESS_GID: "890902374", // 메뉴얼/자가조치 (A:구분, B:제목, C:내용, D:링크, E:키워드)
+  LOG_GID: "806380229"       // AS이력 (A:일시, B:시간, C:매장명, D:상담내용, E:처리여부)
 };
 
 const $ = (q)=>document.querySelector(q);
@@ -324,7 +320,7 @@ $("#q").addEventListener("input", ()=>{
   if(tab==="log")  renderLog(lastLog);
 });
 
-/* ===== GVIZ ===== */
+/* ===== GVIZ JSONP ===== */
 function ensureGvizHook(){
   if(!window.google) window.google = {};
   if(!window.google.visualization) window.google.visualization = {};
@@ -340,7 +336,9 @@ function loadSheetByGid(gid){
     const prev = window.google.visualization.Query.setResponse;
     let done = false;
 
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tqx=out:json`;
+    // ✅ 필요한 컬럼만(A~E) + 헤더 제거는 JS에서 처리
+    const tq = encodeURIComponent("select A,B,C,D,E");
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${tq}&tqx=out:json`;
 
     const script = document.createElement("script");
     const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 12000);
@@ -363,10 +361,6 @@ function loadSheetByGid(gid){
           if(!cell) return "";
           const v = (cell.v != null) ? String(cell.v) : "";
           const f = (cell.f != null) ? String(cell.f) : "";
-          const p = (cell.p != null) ? JSON.stringify(cell.p) : "";
-          const blob = [v, f, p].filter(Boolean).join(" ");
-          const m = blob.match(/https?:\/\/[^\s"']+/i);
-          if(m) return m[0];
           return f.trim() ? f : v;
         }));
         resolve({ rows });
@@ -382,7 +376,7 @@ function loadSheetByGid(gid){
   });
 }
 
-/* ===== 홈/자가조치 ===== */
+/* ===== 공통 ===== */
 function escapeHtml(str){
   return String(str ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -395,41 +389,49 @@ function isLikelyUrl(s){
   if(t.includes("docs.google.com") || t.includes("drive.google.com")) return true;
   return false;
 }
-function findFirstUrlInRow(row){
-  const blob = row.map(x => String(x ?? "")).join(" ");
-  const m = blob.match(/https?:\/\/[^\s"']+/i);
-  return m ? m[0] : "";
+function normType(s){
+  return String(s||"").trim().replace(/\s+/g,""); // 공백 제거
 }
-// A:구분(0) B:제목(1) C:내용(2) D:링크(3) E:키워드(4)
-function toObjects(rows){
-  const safe = (r,i)=> (i>=0 && i<r.length) ? String(r[i]||"").trim() : "";
-  const data = rows.filter(r => r.some(x => String(x).trim() !== ""));
-
-  if (data.length){
-    const r0 = data[0];
-    const isHeader =
-      (safe(r0,1)==="제목" && safe(r0,2)==="내용") ||
-      (safe(r0,4)==="키워드" && safe(r0,1).includes("제목") && safe(r0,2).includes("내용"));
-    if(isHeader) data.shift();
-  }
-
-  return data.map((r,idx)=>{
-    let type = safe(r,0);
-    let title = safe(r,1);
-    let content = safe(r,2);
-    let link = safe(r,3);
-    let tags = safe(r,4);
-
-    if(!isLikelyUrl(link)){
-      const found = findFirstUrlInRow(r);
-      if(found) link = found;
-    }
-    if(!isLikelyUrl(link) && isLikelyUrl(type)) { link = type; type = ""; }
-    if(!isLikelyUrl(link) && isLikelyUrl(title)) { link = title; title = ""; }
-
-    return { rowNo: idx+2, type, title, content, link, tags };
-  });
+function isHeaderRow(r){
+  const a = normType(r[0]);
+  const b = normType(r[1]);
+  const c = normType(r[2]);
+  const d = normType(r[3]);
+  const e = normType(r[4]);
+  // 메뉴얼/자가조치 헤더
+  if((a==="구분" || a==="분류") && (b==="제목") && (c==="내용")) return true;
+  if(b==="제목" && c==="내용") return true;
+  // AS이력 헤더
+  if((a==="일시" || a==="날짜") && (b==="시간") && (c==="매장명")) return true;
+  if(a==="일시" && c==="매장명") return true;
+  if(a==="일시" && b==="시간") return true;
+  // ‘제목/내용’만 떠버리는 경우 방지
+  if(a==="제목" && b==="내용") return true;
+  return false;
 }
+function compactRows(rows){
+  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
+  // 맨 위에 헤더가 있으면 제거(연속 2줄 헤더도 제거)
+  while(data.length && isHeaderRow(data[0])) data.shift();
+  return data;
+}
+
+/* ===== 메뉴얼/자가조치 (A구분 강제 분리) ===== */
+// A:구분 B:제목 C:내용 D:링크 E:키워드
+function toManualSelfObjects(rows){
+  const safe = (r,i)=> (r && i>=0 && i<r.length) ? String(r[i]||"").trim() : "";
+  const data = compactRows(rows);
+
+  return data.map((r,idx)=>({
+    rowNo: idx+2,
+    type:  normType(safe(r,0)),
+    title: safe(r,1),
+    content: safe(r,2),
+    link:  safe(r,3),     // ✅ 링크는 D열만 인정(섞임 방지)
+    tags:  safe(r,4)
+  })).filter(x => (x.type || x.title || x.content || x.link || x.tags));
+}
+
 function dedupeByLink(items){
   const map = new Map();
   for(const it of items){
@@ -453,6 +455,7 @@ function labelForSelf(item, n){
   if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
   return `자가조치 ${n}`;
 }
+
 function renderManualButtons(items){
   const wrap = $("#manualButtons");
   wrap.innerHTML = "";
@@ -463,14 +466,15 @@ function renderManualButtons(items){
   items.forEach(x=>{
     const a = document.createElement("a");
     a.className = "btn";
-    const href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
-    a.href = href;
+    if(!isLikelyUrl(x.link)) return;
+    a.href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
     a.target = "_blank";
     a.rel = "noopener";
-    a.textContent = x.title;
+    a.textContent = x.title || "메뉴얼";
     wrap.appendChild(a);
   });
 }
+
 function renderSelf(items){
   const list = $("#selfList");
   const q = $("#q").value.trim().toLowerCase();
@@ -508,6 +512,7 @@ function renderSelf(items){
     list.appendChild(d);
   });
 }
+
 async function ensureWirelessLoaded(force=false){
   if(wirelessLoaded && !force) return;
 
@@ -516,15 +521,17 @@ async function ensureWirelessLoaded(force=false){
 
   try{
     const raw = await loadSheetByGid(CONFIG.WIRELESS_GID);
-    const rows = toObjects(raw.rows);
+    const rows = toManualSelfObjects(raw.rows);
 
-    manualRowsCached = dedupeByLink(rows.filter(x => isLikelyUrl(x.link)))
-      .map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
+    // ✅ A열 구분으로만 분리
+    const manual = rows.filter(x => x.type === "메뉴얼" && isLikelyUrl(x.link));
+    const self   = rows.filter(x => x.type === "자가조치" && String(x.content||"").trim() !== "");
 
-    const selfRowsRaw = rows.filter(x => String(x.content||"").trim() !== "");
-    lastSelf = selfRowsRaw.map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
+    manualRowsCached = dedupeByLink(manual).map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
+    const selfRows = self.map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
 
     renderManualButtons(manualRowsCached);
+    lastSelf = selfRows;
     if(tab === "self") renderSelf(lastSelf);
 
     wirelessLoaded = true;
@@ -559,27 +566,14 @@ function parseDT(dateStr, timeStr){
   const ms = dt.getTime();
   return Number.isFinite(ms) ? ms : 0;
 }
-function headerLike(r){
-  const a = String(r[0]||"").trim();
-  const b = String(r[1]||"").trim();
-  const c = String(r[2]||"").trim();
-  return (a==="일시" && b==="시간") || (a==="일시" && c==="매장명");
-}
 function normalizeStoreTag(store){
   const s = String(store||"").trim();
   if(!s) return "";
-  return s.replace(/\s+/g,""); // 공백 정리
-}
-function memoPreview(m){
-  const s = String(m||"").trim();
-  if(!s) return "";
-  return s;
+  return s.replace(/\s+/g,"");
 }
 async function loadLogFromSheet(){
   const raw = await loadSheetByGid(CONFIG.LOG_GID);
-  const rows = (raw.rows||[]).filter(r => r.some(x => String(x).trim() !== ""));
-
-  if(rows.length && headerLike(rows[0])) rows.shift();
+  const rows = compactRows(raw.rows);
 
   const data = rows.map(r=>({
     date:  String(r[0]||"").trim(),
@@ -614,7 +608,7 @@ function renderLog(items){
     const dtText = [x.date, x.time].filter(Boolean).join(" ");
     const tag = normalizeStoreTag(x.store);
     const tagHtml = tag ? `<span class="tag">#${escapeHtml(tag)}</span>` : "";
-    const preview = memoPreview(x.memo);
+    const preview = String(x.memo||"").trim();
 
     d.innerHTML = `
       <summary>
@@ -661,17 +655,17 @@ async function reloadLog(){
 $("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
 $("#btnReloadLog").addEventListener("click", reloadLog);
 
-/* ===== 자동 새로고침: 열린 탭만 ===== */
+/* ===== 자동 새로고침(열린 탭만) ===== */
 function startPolling(){
   if(selfTimer) clearInterval(selfTimer);
   if(logTimer) clearInterval(logTimer);
 
-  selfTimer = setInterval(()=>{ if(tabFromHash()==="self") ensureWirelessLoaded(true); }, 60000);
-  logTimer  = setInterval(()=>{ if(tabFromHash()==="log")  reloadLog(); }, 45000);
+  selfTimer = setInterval(()=>{ if(tabFromHash()==="self") ensureWirelessLoaded(true); }, 120000); // 2분
+  logTimer  = setInterval(()=>{ if(tabFromHash()==="log")  reloadLog(); }, 180000);              // 3분
 }
 startPolling();
 
-/* ===== 초기 로딩: 전체 읽지 않음 ===== */
+/* ===== 초기 로딩: 필요한 것만 ===== */
 (async function init(){
   const tab = tabFromHash();
   if(tab === "log") {
