@@ -1,4 +1,4 @@
-
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
@@ -119,6 +119,124 @@
       border-radius:14px; color:var(--muted); background:rgba(0,0,0,.10);
     }
 
+    /* ✅ AS 이력 */
+    .formgrid{
+      display:grid; gap:10px;
+      grid-template-columns: 1.2fr 1fr;
+      margin-top:10px;
+    }
+    .field{
+      border:1px solid var(--bd);
+      background:rgba(0,0,0,.14);
+      border-radius:14px;
+      padding:10px 12px;
+      display:flex; flex-direction:column; gap:6px;
+      min-width:0;
+    }
+    .field label{font-size:12px; color:var(--muted);}
+    .field input, .field textarea, .field select{
+      width:100%;
+      border:0; outline:0;
+      background:transparent;
+      color:var(--text);
+      font-size:14px;
+      font-family:var(--font);
+      resize:vertical;
+      min-height:22px;
+    }
+    .field textarea{min-height:90px; line-height:1.5;}
+    .actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .btn2{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      font-size:13px;
+      cursor:pointer;
+    }
+    .btn2.primary{
+      border-color:rgba(122,162,255,.35);
+      background:rgba(122,162,255,.12);
+    }
+    .btn2.danger{
+      border-color:rgba(255,120,120,.28);
+      background:rgba(255,120,120,.10);
+    }
+    .logtable{
+      margin-top:12px;
+      border:1px solid var(--bd);
+      background:rgba(0,0,0,.14);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .logrow{
+      display:grid;
+      grid-template-columns: 170px 1.2fr 2fr 110px 86px;
+      gap:10px;
+      padding:10px 12px;
+      border-top:1px solid rgba(255,255,255,.08);
+      align-items:center;
+      min-width:0;
+    }
+    .logrow.head{
+      border-top:0;
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+    }
+    .logcell{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:13px;
+    }
+    .logcell.wrap{
+      white-space:normal;
+      overflow:visible;
+      word-break:break-word;
+      line-height:1.5;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--bd);
+      font-size:12px;
+      color:var(--muted);
+      background:rgba(0,0,0,.10);
+      max-width:100%;
+    }
+    .badge.done{
+      border-color:rgba(142,240,208,.35);
+      color:#c6fff0;
+      background:rgba(142,240,208,.10);
+    }
+    .badge.todo{
+      border-color:rgba(255,210,120,.35);
+      color:#ffe9c1;
+      background:rgba(255,210,120,.10);
+    }
+    .iconbtn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border-radius:12px;
+      padding:8px 10px;
+      font-size:12px;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .iconbtn:hover{filter:brightness(1.08);}
+
     /* ✅ 모바일 최적화 */
     @media (max-width: 900px){
       .app{grid-template-columns: 1fr;}
@@ -146,12 +264,25 @@
       .chip{display:none;}
       .main{padding:14px;}
       .btnrow{grid-template-columns: repeat(2, minmax(0, 1fr));}
+
+      .formgrid{grid-template-columns: 1fr;}
+      .logrow{grid-template-columns: 1fr; gap:6px;}
+      .logrow.head{display:none;}
+      .logcell{white-space:normal;}
     }
     @media (max-width: 420px){
       .brand{padding:10px;}
       .brand h1{font-size:14px;}
       .btnrow{grid-template-columns: 1fr;}
       .btn{white-space:normal; line-height:1.2;}
+    }
+
+    /* ✅ 터치(모바일/태블릿)에서는 리스트 내부 스크롤 전부 제거 */
+    @media (hover: none) and (pointer: coarse) {
+      .list .body{
+        max-height: none !important;
+        overflow: visible !important;
+      }
     }
   </style>
 </head>
@@ -168,6 +299,7 @@
     <nav class="nav">
       <a href="#home" data-tab="home" class="active">🏠 홈 <span class="chip">Links</span></a>
       <a href="#self" data-tab="self">🧯 자가조치 <span class="chip">Guide</span></a>
+      <a href="#log"  data-tab="log">📝 AS 이력 <span class="chip">Log</span></a>
     </nav>
   </aside>
 
@@ -191,6 +323,43 @@
         <div class="list" id="selfList"></div>
       </div>
     </section>
+
+    <section class="section" id="tab-log">
+      <div class="card">
+        <h3>AS 이력</h3>
+
+        <div class="formgrid">
+          <div class="field">
+            <label>일시</label>
+            <input id="logWhen" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label>매장명</label>
+            <input id="logStore" type="text" placeholder="예) OO점" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>상담내용</label>
+            <textarea id="logMemo" placeholder="상담 내용 / 증상 / 조치 내용"></textarea>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>처리여부</label>
+            <select id="logStatus">
+              <option value="미처리">미처리</option>
+              <option value="진행중">진행중</option>
+              <option value="처리완료">처리완료</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn2 primary" id="btnSaveLog">저장</button>
+          <button class="btn2" id="btnExportCsv">CSV 내보내기</button>
+          <button class="btn2 danger" id="btnClearLogs">전체 삭제</button>
+        </div>
+
+        <div class="logtable" id="logTable"></div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -200,6 +369,8 @@ const CONFIG = {
   WIRELESS_GID: "890902374",
 };
 
+const STORAGE_KEY = "iot_as_logs_v1";
+
 const $ = (q)=>document.querySelector(q);
 const $$ = (q)=>Array.from(document.querySelectorAll(q));
 
@@ -208,16 +379,25 @@ function setTab(tab){
   $$(".section").forEach(s=>s.classList.remove("active"));
   const sec = $("#tab-"+tab);
   if(sec) sec.classList.add("active");
+  // 탭 바뀌면 현재 검색어 기준으로 다시 렌더
+  if(tab==="self") renderSelf(lastSelf);
+  if(tab==="log") renderLogs(loadLogs());
 }
 function tabFromHash(){
   const h = (location.hash || "#home").replace("#","");
-  return (["home","self"].includes(h)) ? h : "home";
+  return (["home","self","log"].includes(h)) ? h : "home";
 }
 window.addEventListener("hashchange", ()=> setTab(tabFromHash()));
 setTab(tabFromHash());
 
 let lastSelf = [];
-$("#q").addEventListener("input", ()=>renderSelf(lastSelf));
+
+// 검색창: 자가조치/AS이력 탭에서만 필터 적용
+$("#q").addEventListener("input", ()=>{
+  const tab = tabFromHash();
+  if(tab==="self") renderSelf(lastSelf);
+  if(tab==="log") renderLogs(loadLogs());
+});
 
 function escapeHtml(str){
   return String(str ?? "")
@@ -303,24 +483,34 @@ function findFirstUrlInRow(row){
 // A:구분(0) B:제목(1) C:내용(2) D:링크(3) E:키워드(4)
 function toObjects(rows){
   const safe = (r,i)=> (i>=0 && i<r.length) ? String(r[i]||"").trim() : "";
-  return rows
-    .filter(r => r.some(x => String(x).trim() !== ""))
-    .map((r,idx)=>{
-      let type = safe(r,0);
-      let title = safe(r,1);
-      let content = safe(r,2);
-      let link = safe(r,3);
-      let tags = safe(r,4);
 
-      if(!isLikelyUrl(link)){
-        const found = findFirstUrlInRow(r);
-        if(found) link = found;
-      }
-      if(!isLikelyUrl(link) && isLikelyUrl(type)) { link = type; type = ""; }
-      if(!isLikelyUrl(link) && isLikelyUrl(title)) { link = title; title = ""; }
+  const data = rows.filter(r => r.some(x => String(x).trim() !== ""));
 
-      return { rowNo: idx+2, type, title, content, link, tags };
-    });
+  // ✅ 첫 행이 헤더(제목/내용/키워드)면 제거
+  if (data.length){
+    const r0 = data[0];
+    const isHeader =
+      (safe(r0,1)==="제목" && safe(r0,2)==="내용") ||
+      (safe(r0,4)==="키워드" && safe(r0,1).includes("제목") && safe(r0,2).includes("내용"));
+    if(isHeader) data.shift();
+  }
+
+  return data.map((r,idx)=>{
+    let type = safe(r,0);
+    let title = safe(r,1);
+    let content = safe(r,2);
+    let link = safe(r,3);
+    let tags = safe(r,4);
+
+    if(!isLikelyUrl(link)){
+      const found = findFirstUrlInRow(r);
+      if(found) link = found;
+    }
+    if(!isLikelyUrl(link) && isLikelyUrl(type)) { link = type; type = ""; }
+    if(!isLikelyUrl(link) && isLikelyUrl(title)) { link = title; title = ""; }
+
+    return { rowNo: idx+2, type, title, content, link, tags };
+  });
 }
 
 function dedupeByLink(items){
@@ -359,7 +549,8 @@ function renderManualButtons(items){
   items.forEach(x=>{
     const a = document.createElement("a");
     a.className = "btn";
-    a.href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
+    const href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
+    a.href = href;
     a.target = "_blank";
     a.rel = "noopener";
     a.textContent = x.title;
@@ -398,13 +589,197 @@ function renderSelf(items){
     d.innerHTML = `
       <summary>${escapeHtml(x.title)}</summary>
       ${tagsHtml}
-      <div class="content">${escapeHtml(x.content)}</div>
+      <div class="content body">${escapeHtml(x.content)}</div>
       ${linkHtml}
     `;
     list.appendChild(d);
   });
 }
 
+/* =========================
+   AS 이력 (로컬 저장)
+========================= */
+function nowKstForDatetimeLocal(){
+  const d = new Date();
+  const kst = new Date(d.getTime() + (9*60*60*1000) - (d.getTimezoneOffset()*60*1000));
+  // yyyy-MM-ddTHH:mm
+  const pad = (n)=>String(n).padStart(2,"0");
+  const yyyy = kst.getFullYear();
+  const mm = pad(kst.getMonth()+1);
+  const dd = pad(kst.getDate());
+  const hh = pad(kst.getHours());
+  const mi = pad(kst.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
+
+function loadLogs(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){
+    return [];
+  }
+}
+function saveLogs(arr){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+function uid(){
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+function fmtWhen(v){
+  const s = String(v||"").trim();
+  if(!s) return "";
+  // datetime-local 형식이면 보기 좋게
+  // 2026-01-22T10:30 -> 2026-01-22 10:30
+  return s.replace("T"," ");
+}
+function statusBadge(status){
+  const st = String(status||"").trim();
+  if(st==="처리완료") return `<span class="badge done">처리완료</span>`;
+  if(st==="진행중") return `<span class="badge todo">진행중</span>`;
+  return `<span class="badge todo">미처리</span>`;
+}
+
+function renderLogs(items){
+  const wrap = $("#logTable");
+  const q = $("#q").value.trim().toLowerCase();
+
+  const filtered = items.filter(x=>{
+    if(!q) return true;
+    const blob = `${x.when} ${x.store} ${x.memo} ${x.status}`.toLowerCase();
+    return blob.includes(q);
+  });
+
+  if(!filtered.length){
+    wrap.innerHTML = `<div class="empty">등록된 이력이 없습니다.</div>`;
+    return;
+  }
+
+  const head = `
+    <div class="logrow head">
+      <div>일시</div>
+      <div>매장명</div>
+      <div>상담내용</div>
+      <div>처리여부</div>
+      <div>관리</div>
+    </div>
+  `;
+
+  const rows = filtered.map(x=>`
+    <div class="logrow">
+      <div class="logcell">${escapeHtml(fmtWhen(x.when))}</div>
+      <div class="logcell">${escapeHtml(x.store)}</div>
+      <div class="logcell wrap">${escapeHtml(x.memo)}</div>
+      <div class="logcell">${statusBadge(x.status)}</div>
+      <div class="logcell" style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="iconbtn" data-act="toggle" data-id="${escapeHtml(x.id)}">상태변경</button>
+        <button class="iconbtn" data-act="del" data-id="${escapeHtml(x.id)}">삭제</button>
+      </div>
+    </div>
+  `).join("");
+
+  wrap.innerHTML = `<div>${head}${rows}</div>`;
+
+  // 이벤트 위임
+  wrap.querySelectorAll("button[data-act]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const act = btn.dataset.act;
+      const id = btn.dataset.id;
+      let logs = loadLogs();
+
+      if(act==="del"){
+        logs = logs.filter(x=>x.id!==id);
+        saveLogs(logs);
+        renderLogs(logs);
+        return;
+      }
+
+      if(act==="toggle"){
+        logs = logs.map(x=>{
+          if(x.id!==id) return x;
+          const cur = String(x.status||"미처리");
+          const next = (cur==="미처리") ? "진행중" : (cur==="진행중" ? "처리완료" : "미처리");
+          return { ...x, status: next };
+        });
+        saveLogs(logs);
+        renderLogs(logs);
+      }
+    });
+  });
+}
+
+function downloadText(filename, text){
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+function toCsv(logs){
+  const esc = (s)=> `"${String(s??"").replaceAll('"','""')}"`;
+  const head = ["일시","매장명","상담내용","처리여부"].map(esc).join(",");
+  const body = logs.map(x=>[
+    fmtWhen(x.when),
+    x.store,
+    x.memo,
+    x.status
+  ].map(esc).join(",")).join("\n");
+  return head + "\n" + body;
+}
+
+$("#btnSaveLog").addEventListener("click", ()=>{
+  const when = $("#logWhen").value.trim();
+  const store = $("#logStore").value.trim();
+  const memo = $("#logMemo").value.trim();
+  const status = $("#logStatus").value;
+
+  if(!when || !store || !memo){
+    alert("일시 / 매장명 / 상담내용은 필수입니다.");
+    return;
+  }
+
+  const logs = loadLogs();
+  logs.unshift({ id: uid(), when, store, memo, status, createdAt: Date.now() });
+  saveLogs(logs);
+
+  // 입력 초기화(일시는 현재로)
+  $("#logWhen").value = nowKstForDatetimeLocal();
+  $("#logStore").value = "";
+  $("#logMemo").value = "";
+  $("#logStatus").value = "미처리";
+
+  renderLogs(logs);
+});
+
+$("#btnExportCsv").addEventListener("click", ()=>{
+  const logs = loadLogs();
+  if(!logs.length){
+    alert("내보낼 이력이 없습니다.");
+    return;
+  }
+  downloadText(`AS이력_${new Date().toISOString().slice(0,10)}.csv`, toCsv(logs));
+});
+
+$("#btnClearLogs").addEventListener("click", ()=>{
+  const logs = loadLogs();
+  if(!logs.length) return;
+  if(!confirm("전체 이력을 삭제할까요?")) return;
+  saveLogs([]);
+  renderLogs([]);
+});
+
+(function initLogForm(){
+  $("#logWhen").value = nowKstForDatetimeLocal();
+  renderLogs(loadLogs());
+})();
+
+/* =========================
+   초기 로딩
+========================= */
 (async function init(){
   try{
     const raw = await loadSheetByGid(CONFIG.WIRELESS_GID);
