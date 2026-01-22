@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
@@ -185,7 +186,6 @@
     }
     details[open] .preview{display:none;}
 
-    /* ✅ 모바일 최적화 */
     @media (max-width: 900px){
       .app{grid-template-columns: 1fr;}
       .side{
@@ -278,7 +278,7 @@
 <script>
 const CONFIG = {
   SHEET_ID: "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4",
-  WIRELESS_GID: "890902374", // A:구분(메뉴얼/자가조치) B:제목 C:내용 D:링크 E:키워드
+  WIRELESS_GID: "890902374", // A:구분 B:제목 C:내용 D:링크 E:키워드
   LOG_GID: "806380229"       // A:일시 B:시간 C:매장명 D:상담내용 E:처리여부
 };
 
@@ -314,7 +314,7 @@ $("#q").addEventListener("input", ()=>{
   if(tab==="log")  renderLog(lastLog);
 });
 
-/* ===== GViz JSONP (텍스트 기반, 빠름/안정) ===== */
+/* ===== GViz JSONP (텍스트 기반) ===== */
 function ensureGvizHook(){
   if(!window.google) window.google = {};
   if(!window.google.visualization) window.google.visualization = {};
@@ -385,7 +385,6 @@ function isHeaderRow(r){
   const a = normType(r[0]), b = normType(r[1]), c = normType(r[2]);
   if((a==="구분"||a==="분류") && b==="제목" && c==="내용") return true;
   if(b==="제목" && c==="내용") return true;
-  // 혹시 "제목/내용"만 떠버리는 케이스
   if(a==="제목" && b==="내용") return true;
   return false;
 }
@@ -394,10 +393,6 @@ function compactRows(rows){
   while(data.length && isHeaderRow(data[0])) data.shift();
   return data;
 }
-
-/* ✅ 딱 이것만 인정: 메뉴얼 / 자가조치 */
-function typeIsManual(t){ return normType(t) === "메뉴얼"; }
-function typeIsSelf(t){ return normType(t) === "자가조치"; }
 
 /* A:구분 B:제목 C:내용 D:링크 E:키워드 */
 function toMSObjects(rows){
@@ -409,17 +404,28 @@ function toMSObjects(rows){
     content: String(r[2]||"").trim(),
     link: String(r[3]||"").trim(),
     tags: String(r[4]||"").trim()
-  }));
+  })).filter(x => x.type || x.title || x.content || x.link || x.tags);
 }
 
 function labelForLink(item, n){
   if(item.title) return item.title;
   return `메뉴얼 ${n}`;
 }
+
+/* ✅ 자가조치: 내용 없어도 링크만 있으면 "자료 참조"로 뜨게 */
 function labelForSelf(item, n){
   if(item.title) return item.title;
+
   const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
   if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
+
+  if(isLikelyUrl(item.link)){
+    try{
+      const u = item.link.startsWith("http") ? new URL(item.link) : null;
+      if(u) return `자료 참조 · ${u.hostname}`;
+    }catch(e){}
+    return "자료 참조";
+  }
   return `자가조치 ${n}`;
 }
 
@@ -454,7 +460,7 @@ function renderSelf(items){
 
   const filtered = items.filter(x=>{
     if(!q) return true;
-    const blob = `${x.title} ${x.content} ${x.tags}`.toLowerCase();
+    const blob = `${x.title} ${x.content} ${x.tags} ${x.link}`.toLowerCase();
     return blob.includes(q);
   });
 
@@ -473,20 +479,24 @@ function renderSelf(items){
       : "";
 
     const linkHtml = isLikelyUrl(x.link)
-      ? `<div class="meta"><a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">${escapeHtml(x.link)}</a></div>`
+      ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a> <span style="opacity:.75">(${escapeHtml(x.link)})</span></div>`
+      : "";
+
+    const contentHtml = String(x.content||"").trim()
+      ? `<div class="content body">${escapeHtml(x.content)}</div>`
       : "";
 
     d.innerHTML = `
       <summary>${escapeHtml(x.title)}</summary>
       ${tagsHtml}
-      <div class="content body">${escapeHtml(x.content)}</div>
+      ${contentHtml}
       ${linkHtml}
     `;
     list.appendChild(d);
   });
 }
 
-/* ===== 로딩: 메뉴얼/자가조치 (완전 분리) ===== */
+/* ===== 로딩: 메뉴얼/자가조치 (섞이지 않게 자동분리) ===== */
 async function ensureWirelessLoaded(force=false){
   if(wirelessLoaded && !force) return;
 
@@ -497,13 +507,21 @@ async function ensureWirelessLoaded(force=false){
     const rawRows = await loadSheetTextRows(CONFIG.WIRELESS_GID, "select A,B,C,D,E limit 2000");
     const rows = toMSObjects(rawRows);
 
-    const manual = rows
-      .filter(x => typeIsManual(x.type))
+    // 1) A열이 정확히 있는 건 그대로
+    const manualByType = rows.filter(x => x.type === "메뉴얼");
+    const selfByType   = rows.filter(x => x.type === "자가조치" && (x.title || x.content || isLikelyUrl(x.link)));
+
+    // 2) A열 비어있을 때도 섞이지 않게:
+    //    - 링크 있으면 메뉴얼
+    //    - 내용 있거나 링크 있으면 자가조치
+    const manualAuto = rows.filter(x => !x.type && isLikelyUrl(x.link));
+    const selfAuto   = rows.filter(x => !x.type && (String(x.content||"").trim() !== "" || isLikelyUrl(x.link)));
+
+    const manual = (manualByType.length ? manualByType : manualAuto)
       .map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
 
-    const self = rows
-      .filter(x => typeIsSelf(x.type))
-      .filter(x => String(x.content||"").trim() !== "")
+    const self = (selfByType.length ? selfByType : selfAuto)
+      .filter(x => x.title || String(x.content||"").trim() !== "" || isLikelyUrl(x.link))
       .map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
 
     manualRowsCached = manual;
@@ -629,16 +647,15 @@ async function reloadLog(){
   });
 })();
 
-/* ===== 탭/버튼 ===== */
+/* ===== 버튼 ===== */
 $("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
 $("#btnReloadLog").addEventListener("click", reloadLog);
 
-function start(){
+(function start(){
   const tab = tabFromHash();
   if(tab === "log") reloadLog();
   else ensureWirelessLoaded(false);
-}
-start();
+})();
 </script>
 </body>
 </html>
