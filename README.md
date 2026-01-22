@@ -478,8 +478,9 @@ function renderSelf(items){
       : "";
 
     const linkHtml = isLikelyUrl(x.link)
-      ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a> <span style="opacity:.75">(${escapeHtml(x.link)})</span></div>`
-      : "";
+  ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a></div>`
+  : "";
+
 
     const contentHtml = String(x.content||"").trim()
       ? `<div class="content body">${escapeHtml(x.content)}</div>`
