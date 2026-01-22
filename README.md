@@ -329,16 +329,16 @@ function ensureGvizHook(){
     window.google.visualization.Query.setResponse = function(){};
   }
 }
-function loadSheetByGid(gid){
+
+function loadSheetCells(gid, tq){
   return new Promise((resolve, reject) => {
     ensureGvizHook();
 
     const prev = window.google.visualization.Query.setResponse;
     let done = false;
 
-    // ✅ 필요한 컬럼만(A~E) + 헤더 제거는 JS에서 처리
-    const tq = encodeURIComponent("select A,B,C,D,E");
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${tq}&tqx=out:json`;
+    const query = encodeURIComponent(tq || "select A,B,C,D,E limit 1000");
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${query}&tqx=out:json`;
 
     const script = document.createElement("script");
     const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 12000);
@@ -357,31 +357,28 @@ function loadSheetByGid(gid){
         if(!resp || resp.status !== "ok"){
           throw new Error(resp?.errors?.[0]?.message || "load failed");
         }
-        const rows = resp.table.rows.map(r => r.c.map(cell => {
-          if(!cell) return "";
-          const v = (cell.v != null) ? String(cell.v) : "";
-          const f = (cell.f != null) ? String(cell.f) : "";
-          return f.trim() ? f : v;
-        }));
+        const rows = (resp.table.rows||[]).map(r => (r.c||[]).map(cell => cell || null));
         resolve({ rows });
       }catch(e){
         reject(e);
       }
     };
 
-    script.src = url;
+    script.src = url + "&_=" + Date.now(); // 캐시 뭉개기(가끔 갱신 늦는 것 방지)
     script.async = true;
     script.onerror = () => { cleanup(); reject(new Error("network")); };
     document.head.appendChild(script);
   });
 }
 
-/* ===== 공통 ===== */
-function escapeHtml(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function cellText(cell){
+  if(!cell) return "";
+  const f = (cell.f != null) ? String(cell.f).trim() : "";
+  if(f) return f;
+  const v = (cell.v != null) ? String(cell.v).trim() : "";
+  return v;
 }
+
 function isLikelyUrl(s){
   const t = String(s||"").trim();
   if(!t) return false;
@@ -389,47 +386,111 @@ function isLikelyUrl(s){
   if(t.includes("docs.google.com") || t.includes("drive.google.com")) return true;
   return false;
 }
-function normType(s){
-  return String(s||"").trim().replace(/\s+/g,""); // 공백 제거
+
+function firstUrlInString(s){
+  const m = String(s||"").match(/https?:\/\/[^\s"']+/i);
+  return m ? m[0] : "";
 }
-function isHeaderRow(r){
-  const a = normType(r[0]);
-  const b = normType(r[1]);
-  const c = normType(r[2]);
-  const d = normType(r[3]);
-  const e = normType(r[4]);
-  // 메뉴얼/자가조치 헤더
-  if((a==="구분" || a==="분류") && (b==="제목") && (c==="내용")) return true;
-  if(b==="제목" && c==="내용") return true;
-  // AS이력 헤더
-  if((a==="일시" || a==="날짜") && (b==="시간") && (c==="매장명")) return true;
-  if(a==="일시" && c==="매장명") return true;
-  if(a==="일시" && b==="시간") return true;
-  // ‘제목/내용’만 떠버리는 경우 방지
-  if(a==="제목" && b==="내용") return true;
+
+function cellLink(cell){
+  if(!cell) return "";
+  // 1) v 자체가 URL
+  if(typeof cell.v === "string" && isLikelyUrl(cell.v)) return String(cell.v).trim();
+
+  // 2) f(표시 문자열) 안에 URL이 들어있는 경우
+  if(typeof cell.f === "string"){
+    const u = firstUrlInString(cell.f);
+    if(u) return u;
+    if(isLikelyUrl(cell.f)) return String(cell.f).trim();
+  }
+
+  // 3) p(리치텍스트 링크)에서 뽑기
+  const p = cell.p;
+  if(p && typeof p === "object"){
+    const direct =
+      p.link || p.url || p.href ||
+      (p["hyperlink"] && (p["hyperlink"].url || p["hyperlink"].link));
+    if(direct && isLikelyUrl(direct)) return String(direct).trim();
+
+    // 혹시 몰라서 전체 stringify에서 URL 탐색
+    const u = firstUrlInString(JSON.stringify(p));
+    if(u) return u;
+  }
+
+  // 4) v가 URL은 아닌데 문자열인 경우(예: HYPERLINK 함수 결과가 v에 URL로 오는 케이스도 있음)
+  if(typeof cell.v === "string"){
+    const u = firstUrlInString(cell.v);
+    if(u) return u;
+  }
+
+  return "";
+}
+
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function normType(s){
+  return String(s||"").trim().replace(/\s+/g,"");
+}
+
+function isHeaderRowText(a,b,c){
+  const A = normType(a), B = normType(b), C = normType(c);
+  if((A==="구분"||A==="분류") && B==="제목" && C==="내용") return true;
+  if(B==="제목" && C==="내용") return true;
   return false;
 }
-function compactRows(rows){
-  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
-  // 맨 위에 헤더가 있으면 제거(연속 2줄 헤더도 제거)
-  while(data.length && isHeaderRow(data[0])) data.shift();
+
+function compactRowsCells(rows){
+  const data = (rows||[])
+    .map(r=>r||[])
+    .filter(r => r.some(cell => String(cellText(cell)).trim() !== ""));
+  // 헤더 제거(연속 가능)
+  while(data.length){
+    const a = cellText(data[0][0]);
+    const b = cellText(data[0][1]);
+    const c = cellText(data[0][2]);
+    if(isHeaderRowText(a,b,c)) data.shift();
+    else break;
+  }
   return data;
 }
 
-/* ===== 메뉴얼/자가조치 (A구분 강제 분리) ===== */
-// A:구분 B:제목 C:내용 D:링크 E:키워드
-function toManualSelfObjects(rows){
-  const safe = (r,i)=> (r && i>=0 && i<r.length) ? String(r[i]||"").trim() : "";
-  const data = compactRows(rows);
+/* ===== 메뉴얼/자가조치 ===== */
+function toManualSelfObjects(cellRows){
+  const data = compactRowsCells(cellRows);
 
-  return data.map((r,idx)=>({
-    rowNo: idx+2,
-    type:  normType(safe(r,0)),
-    title: safe(r,1),
-    content: safe(r,2),
-    link:  safe(r,3),     // ✅ 링크는 D열만 인정(섞임 방지)
-    tags:  safe(r,4)
-  })).filter(x => (x.type || x.title || x.content || x.link || x.tags));
+  return data.map((r,idx)=>{
+    const typeRaw = cellText(r[0]);
+    const title   = cellText(r[1]);
+    const content = cellText(r[2]);
+
+    // ✅ 링크는 "D열"에서만 잡되, 하이퍼링크/리치텍스트/표시텍스트 모두 처리
+    const linkCell = r[3];
+    const link = cellLink(linkCell) || cellText(linkCell);
+
+    const tags    = cellText(r[4]);
+
+    return {
+      rowNo: idx+2,
+      type: normType(typeRaw),
+      title: String(title||"").trim(),
+      content: String(content||"").trim(),
+      link: String(link||"").trim(),
+      tags: String(tags||"").trim()
+    };
+  }).filter(x => (x.type || x.title || x.content || x.link || x.tags));
+}
+
+function typeIsManual(t){
+  const x = normType(t).toLowerCase();
+  return x==="메뉴얼" || x==="매뉴얼" || x==="manual" || x==="links";
+}
+function typeIsSelf(t){
+  const x = normType(t).toLowerCase();
+  return x==="자가조치" || x==="가이드" || x==="guide" || x==="self";
 }
 
 function dedupeByLink(items){
@@ -441,6 +502,7 @@ function dedupeByLink(items){
   }
   return Array.from(map.values());
 }
+
 function labelForLink(item, n){
   if(item.title) return item.title;
   try{
@@ -449,6 +511,7 @@ function labelForLink(item, n){
   }catch(e){}
   return `Link #${n}`;
 }
+
 function labelForSelf(item, n){
   if(item.title) return item.title;
   const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
@@ -464,9 +527,9 @@ function renderManualButtons(items){
     return;
   }
   items.forEach(x=>{
+    if(!isLikelyUrl(x.link)) return;
     const a = document.createElement("a");
     a.className = "btn";
-    if(!isLikelyUrl(x.link)) return;
     a.href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
     a.target = "_blank";
     a.rel = "noopener";
@@ -520,18 +583,28 @@ async function ensureWirelessLoaded(force=false){
   if(!force && tab !== "home" && tab !== "self") return;
 
   try{
-    const raw = await loadSheetByGid(CONFIG.WIRELESS_GID);
+    const raw = await loadSheetCells(CONFIG.WIRELESS_GID, "select A,B,C,D,E limit 2000");
     const rows = toManualSelfObjects(raw.rows);
 
-    // ✅ A열 구분으로만 분리
-    const manual = rows.filter(x => x.type === "메뉴얼" && isLikelyUrl(x.link));
-    const self   = rows.filter(x => x.type === "자가조치" && String(x.content||"").trim() !== "");
+    // ✅ A열 구분 우선 + (비어있으면 자동 분류 안전장치)
+    const manual = rows.filter(x=>{
+      if(typeIsManual(x.type)) return isLikelyUrl(x.link);
+      if(x.type) return false;
+      // 구분 비었으면 링크 있으면 메뉴얼로
+      return isLikelyUrl(x.link) && !String(x.content||"").trim();
+    });
+
+    const self = rows.filter(x=>{
+      if(typeIsSelf(x.type)) return String(x.content||"").trim() !== "";
+      if(x.type) return false;
+      // 구분 비었으면 내용 있으면 자가조치로
+      return String(x.content||"").trim() !== "";
+    });
 
     manualRowsCached = dedupeByLink(manual).map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
-    const selfRows = self.map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
+    lastSelf = self.map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
 
     renderManualButtons(manualRowsCached);
-    lastSelf = selfRows;
     if(tab === "self") renderSelf(lastSelf);
 
     wirelessLoaded = true;
@@ -543,7 +616,7 @@ async function ensureWirelessLoaded(force=false){
   }
 }
 
-/* ===== AS 이력 (A:일시 B:시간 C:매장명 D:상담내용 E:처리여부) ===== */
+/* ===== AS 이력 ===== */
 function normStatus(s){
   const v = String(s||"").trim();
   if(v==="처리완료" || v==="진행중" || v==="미처리") return v;
@@ -571,9 +644,24 @@ function normalizeStoreTag(store){
   if(!s) return "";
   return s.replace(/\s+/g,"");
 }
+function compactRowsText(rows){
+  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
+  // 헤더 제거(AS이력)
+  while(data.length){
+    const a = String(data[0][0]||"").trim();
+    const b = String(data[0][1]||"").trim();
+    const c = String(data[0][2]||"").trim();
+    const A = normType(a), B = normType(b), C = normType(c);
+    if((A==="일시"||A==="날짜") && (B==="시간") && (C==="매장명")) data.shift();
+    else break;
+  }
+  return data;
+}
 async function loadLogFromSheet(){
-  const raw = await loadSheetByGid(CONFIG.LOG_GID);
-  const rows = compactRows(raw.rows);
+  const raw = await loadSheetCells(CONFIG.LOG_GID, "select A,B,C,D,E limit 3000");
+  // AS이력은 텍스트만 쓰면 됨
+  const rowsText = (raw.rows||[]).map(r => (r||[]).map(cell => cellText(cell)));
+  const rows = compactRowsText(rowsText);
 
   const data = rows.map(r=>({
     date:  String(r[0]||"").trim(),
@@ -660,12 +748,12 @@ function startPolling(){
   if(selfTimer) clearInterval(selfTimer);
   if(logTimer) clearInterval(logTimer);
 
-  selfTimer = setInterval(()=>{ if(tabFromHash()==="self") ensureWirelessLoaded(true); }, 120000); // 2분
-  logTimer  = setInterval(()=>{ if(tabFromHash()==="log")  reloadLog(); }, 180000);              // 3분
+  selfTimer = setInterval(()=>{ if(tabFromHash()==="self") ensureWirelessLoaded(true); }, 120000);
+  logTimer  = setInterval(()=>{ if(tabFromHash()==="log")  reloadLog(); }, 180000);
 }
 startPolling();
 
-/* ===== 초기 로딩: 필요한 것만 ===== */
+/* ===== 초기 로딩 ===== */
 (async function init(){
   const tab = tabFromHash();
   if(tab === "log") {
