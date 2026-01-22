@@ -4,54 +4,63 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>IoT AS 메뉴얼</title>
   <style>
-    :root{
-      --bg:#0b1020; --text:#e8ecff; --muted:#aab2d5; --bd:rgba(255,255,255,.10);
-      --accent:#7aa2ff; --accent2:#8ef0d0;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --radius:16px;
-      --font: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
-    }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family:var(--font); color:var(--text);
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
+      color:#e8ecff;
       background:
         radial-gradient(1200px 800px at 20% -10%, #1a2c6f 0%, transparent 55%),
         radial-gradient(900px 700px at 110% 10%, #1b5b4a 0%, transparent 55%),
-        var(--bg);
+        #0b1020;
     }
     a{color:inherit; text-decoration:none}
-    .app{display:grid; grid-template-columns: 280px 1fr; min-height:100vh;}
+    .app{display:grid; grid-template-columns:280px 1fr; min-height:100vh;}
 
     .side{
       position:sticky; top:0; height:100vh;
-      padding:18px; border-right:1px solid var(--bd);
+      padding:18px;
+      border-right:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(255,255,255,.04), transparent 40%);
     }
     .brand{
       display:flex; gap:12px; align-items:center;
-      padding:12px; border:1px solid var(--bd);
-      border-radius:var(--radius); background:rgba(255,255,255,.03);
-      box-shadow:var(--shadow);
+      padding:12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
     }
     .logo{
       width:42px; height:42px; border-radius:14px;
-      background:linear-gradient(135deg, var(--accent), var(--accent2));
-      display:grid; place-items:center; color:#07101c; font-weight:900;
+      background:linear-gradient(135deg, #7aa2ff, #8ef0d0);
+      display:grid; place-items:center;
+      color:#07101c; font-weight:900;
       flex:0 0 auto;
     }
     .brand h1{margin:0; font-size:15px; line-height:1.2}
-    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    .brand p{margin:2px 0 0; font-size:12px; color:#aab2d5}
+
     .nav{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
     .nav a{
-      padding:10px 12px; border-radius:14px; border:1px solid transparent;
-      color:var(--muted); display:flex; gap:10px; align-items:center;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid transparent;
+      color:#aab2d5;
+      display:flex; gap:10px; align-items:center;
     }
-    .nav a:hover{background:rgba(255,255,255,.04); color:var(--text);}
-    .nav a.active{background:rgba(122,162,255,.13); border-color:rgba(122,162,255,.28); color:var(--text);}
+    .nav a:hover{background:rgba(255,255,255,.04); color:#e8ecff;}
+    .nav a.active{
+      background:rgba(122,162,255,.13);
+      border-color:rgba(122,162,255,.28);
+      color:#e8ecff;
+    }
     .chip{
       font-size:11px; padding:2px 8px; border-radius:999px;
-      border:1px solid var(--bd); color:var(--muted); margin-left:auto;
-      flex:0 0 auto; opacity:.75;
+      border:1px solid rgba(255,255,255,.10);
+      color:#aab2d5;
+      margin-left:auto;
+      flex:0 0 auto;
+      opacity:.75;
     }
 
     .main{padding:22px; max-width:1100px; width:100%;}
@@ -59,14 +68,22 @@
     .search{
       flex:1; min-width:0;
       display:flex; align-items:center; gap:10px;
-      border:1px solid var(--bd); background:rgba(255,255,255,.03);
-      border-radius:999px; padding:10px 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:999px;
+      padding:10px 14px;
     }
-    .search input{border:0; outline:0; width:100%; background:transparent; color:var(--text); font-size:14px;}
+    .search input{
+      border:0; outline:0; width:100%;
+      background:transparent; color:#e8ecff;
+      font-size:14px;
+    }
 
     .card{
-      border:1px solid var(--bd); border-radius:var(--radius);
-      background:rgba(255,255,255,.03); box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      box-shadow:0 12px 40px rgba(0,0,0,.35);
       padding:16px;
     }
     .card h2{margin:0 0 10px; font-size:18px;}
@@ -74,7 +91,7 @@
 
     .btnrow{
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:10px;
       margin-top:12px;
     }
@@ -83,7 +100,8 @@
       padding:12px 14px; border-radius:14px;
       border:1px solid rgba(122,162,255,.35);
       background:rgba(122,162,255,.12);
-      color:var(--text); font-size:14px;
+      color:#e8ecff;
+      font-size:14px;
       text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
       min-width:0;
@@ -102,27 +120,40 @@
 
     .list{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
     details{
-      border:1px solid var(--bd); border-radius:14px;
-      padding:10px 12px; background:rgba(0,0,0,.14);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(0,0,0,.14);
       overflow:hidden;
     }
     details[open]{background:rgba(0,0,0,.18);}
     summary{cursor:pointer; font-weight:800;}
     summary::-webkit-details-marker{display:none}
-    .meta{margin-top:8px; font-size:12px; color:var(--muted); word-break:break-word;}
-    .content{margin-top:10px; color:var(--text); font-size:13px; line-height:1.6; white-space:pre-wrap; word-break:break-word;}
+    .meta{margin-top:8px; font-size:12px; color:#aab2d5; word-break:break-word;}
+    .content{
+      margin-top:10px;
+      color:#e8ecff;
+      font-size:13px;
+      line-height:1.6;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
 
     .pillchip{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
     .pillchip span{
       font-size:11px; padding:4px 8px; border-radius:999px;
-      border:1px solid var(--bd); color:var(--muted); background:rgba(0,0,0,.10);
+      border:1px solid rgba(255,255,255,.10);
+      color:#aab2d5;
+      background:rgba(0,0,0,.10);
       max-width:100%;
       overflow:hidden; text-overflow:ellipsis;
     }
-
     .empty{
-      padding:14px; border:1px dashed rgba(255,255,255,.18);
-      border-radius:14px; color:var(--muted); background:rgba(0,0,0,.10);
+      padding:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius:14px;
+      color:#aab2d5;
+      background:rgba(0,0,0,.10);
     }
 
     .headrow{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
@@ -132,7 +163,7 @@
       border-radius:14px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.04);
-      color:var(--text);
+      color:#e8ecff;
       font-size:13px;
       cursor:pointer;
       user-select:none;
@@ -140,7 +171,6 @@
     }
     .mini:hover{filter:brightness(1.08);}
 
-    /* AS이력 */
     .filters{display:flex; gap:8px; flex-wrap:wrap; margin:0;}
     .fchip{
       display:inline-flex; align-items:center;
@@ -149,23 +179,24 @@
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(0,0,0,.12);
-      color:var(--muted);
+      color:#aab2d5;
       cursor:pointer;
       user-select:none;
     }
     .fchip.active{
-      color:var(--text);
+      color:#e8ecff;
       border-color:rgba(122,162,255,.35);
       background:rgba(122,162,255,.14);
     }
 
     .logsum{display:flex; gap:10px; align-items:center; flex-wrap:wrap; line-height:1.3;}
-    .logsum .dt{color:var(--muted); font-weight:800; font-size:12px;}
+    .logsum .dt{color:#aab2d5; font-weight:800; font-size:12px;}
     .logsum .store{font-weight:900;}
     .badge{
       font-size:11px; padding:3px 8px; border-radius:999px;
-      border:1px solid var(--bd); background:rgba(0,0,0,.10);
-      color:var(--muted);
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.10);
+      color:#aab2d5;
     }
     .badge.done{border-color:rgba(142,240,208,.35); color:#c6fff0; background:rgba(142,240,208,.10);}
     .badge.prog{border-color:rgba(255,210,120,.35); color:#ffe9c1; background:rgba(255,210,120,.10);}
@@ -186,28 +217,28 @@
     details[open] .preview{display:none;}
 
     @media (max-width: 900px){
-      .app{grid-template-columns: 1fr;}
+      .app{grid-template-columns:1fr;}
       .side{
         position:sticky; top:0; height:auto; z-index:10;
-        border-right:0; border-bottom:1px solid var(--bd);
+        border-right:0;
+        border-bottom:1px solid rgba(255,255,255,.10);
         padding:12px;
-        backdrop-filter: blur(10px);
+        backdrop-filter:blur(10px);
         background:rgba(11,16,32,.92);
       }
       .nav{flex-direction:row; gap:8px; margin-top:10px;}
       .nav a{flex:1; justify-content:center; padding:10px 10px;}
       .chip{display:none;}
       .main{padding:14px;}
-      .btnrow{grid-template-columns: repeat(2, minmax(0, 1fr));}
+      .btnrow{grid-template-columns:repeat(2, minmax(0, 1fr));}
     }
     @media (max-width: 420px){
       .brand{padding:10px;}
       .brand h1{font-size:14px;}
-      .btnrow{grid-template-columns: 1fr;}
+      .btnrow{grid-template-columns:1fr;}
       .btn{white-space:normal; line-height:1.2;}
     }
 
-    /* ✅ 터치(모바일/태블릿)에서는 리스트 내부 스크롤 전부 제거 */
     @media (hover: none) and (pointer: coarse) {
       .list .body{max-height:none !important; overflow:visible !important;}
     }
@@ -275,104 +306,33 @@
 </div>
 
 <script>
-const CONFIG = {
-  SHEET_ID: "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4",
-  WIRELESS_GID: "890902374", // A:구분 B:제목 C:내용 D:링크 E:키워드
-  LOG_GID: "806380229"       // A:일시 B:시간 C:매장명 D:상담내용 E:처리여부
-};
+const SHEET_ID = "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4";
+const WIRELESS_GID = "890902374";
+const LOG_GID = "806380229";
 
 const $ = (q)=>document.querySelector(q);
 const $$ = (q)=>Array.from(document.querySelectorAll(q));
 
-function tabFromHash(){
-  const h = (location.hash || "#home").replace("#","");
-  return (["home","self","log"].includes(h)) ? h : "home";
-}
-function setTab(tab){
-  $$(".nav a").forEach(a=>a.classList.toggle("active", a.dataset.tab===tab));
-  $$(".section").forEach(s=>s.classList.remove("active"));
-  const sec = $("#tab-"+tab);
-  if(sec) sec.classList.add("active");
-
-  if(tab==="home") ensureWirelessLoaded(false);
-  if(tab==="self") { ensureWirelessLoaded(false); renderSelf(lastSelf); }
-  if(tab==="log")  reloadLog();
-}
-window.addEventListener("hashchange", ()=> setTab(tabFromHash()));
-setTab(tabFromHash());
-
 let wirelessLoaded = false;
+let wirelessLoading = null;
+
 let manualRowsCached = [];
 let lastSelf = [];
 let lastLog  = [];
 let logFilter = "all";
 
-$("#q").addEventListener("input", ()=>{
-  const tab = tabFromHash();
-  if(tab==="self") renderSelf(lastSelf);
-  if(tab==="log")  renderLog(lastLog);
-});
-
-/* ===== GViz JSONP (텍스트 기반) ===== */
-function ensureGvizHook(){
-  if(!window.google) window.google = {};
-  if(!window.google.visualization) window.google.visualization = {};
-  if(!window.google.visualization.Query) window.google.visualization.Query = {};
-  if(typeof window.google.visualization.Query.setResponse !== "function"){
-    window.google.visualization.Query.setResponse = function(){};
-  }
-}
-function loadSheetTextRows(gid, tq){
-  return new Promise((resolve, reject) => {
-    ensureGvizHook();
-
-    const prev = window.google.visualization.Query.setResponse;
-    let done = false;
-
-    const query = encodeURIComponent(tq || "select A,B,C,D,E limit 2000");
-    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${query}&tqx=out:json&_=${Date.now()}`;
-
-    const script = document.createElement("script");
-    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 12000);
-
-    function cleanup(){
-      clearTimeout(timer);
-      window.google.visualization.Query.setResponse = prev;
-      if(script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window.google.visualization.Query.setResponse = (resp) => {
-      if(done) return;
-      done = true;
-      try{
-        cleanup();
-        if(!resp || resp.status !== "ok"){
-          throw new Error(resp?.errors?.[0]?.message || "load failed");
-        }
-        const rows = (resp.table.rows||[]).map(r => (r.c||[]).map(cell => {
-          if(!cell) return "";
-          const f = (cell.f != null) ? String(cell.f).trim() : "";
-          const v = (cell.v != null) ? String(cell.v).trim() : "";
-          return f || v;
-        }));
-        resolve(rows);
-      }catch(e){ reject(e); }
-    };
-
-    script.src = url;
-    script.async = true;
-    script.onerror = () => { cleanup(); reject(new Error("network")); };
-    document.head.appendChild(script);
-  });
+function tabFromHash(){
+  const h = (location.hash || "#home").replace("#","");
+  return (["home","self","log"].includes(h)) ? h : "home";
 }
 
-/* ===== 유틸 ===== */
-function escapeHtml(str){
-  return String(str ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function setTabUI(tab){
+  $$(".nav a").forEach(a=>a.classList.toggle("active", a.dataset.tab===tab));
+  $$(".section").forEach(s=>s.classList.remove("active"));
+  const sec = $("#tab-"+tab);
+  if(sec) sec.classList.add("active");
 }
-function normType(s){ return String(s||"").trim().replace(/\s+/g,""); }
+
 function isLikelyUrl(s){
   const t = String(s||"").trim();
   if(!t) return false;
@@ -380,6 +340,15 @@ function isLikelyUrl(s){
   if(t.includes("docs.google.com") || t.includes("drive.google.com")) return true;
   return false;
 }
+
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function normType(s){ return String(s||"").trim().replace(/\s+/g,""); }
+
 function isHeaderRow(r){
   const a = normType(r[0]), b = normType(r[1]), c = normType(r[2]);
   if((a==="구분"||a==="분류") && b==="제목" && c==="내용") return true;
@@ -387,13 +356,13 @@ function isHeaderRow(r){
   if(a==="제목" && b==="내용") return true;
   return false;
 }
+
 function compactRows(rows){
   const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
   while(data.length && isHeaderRow(data[0])) data.shift();
   return data;
 }
 
-/* A:구분 B:제목 C:내용 D:링크 E:키워드 */
 function toMSObjects(rows){
   const data = compactRows(rows);
   return data.map((r,idx)=>({
@@ -411,24 +380,61 @@ function labelForLink(item, n){
   return `메뉴얼 ${n}`;
 }
 
-/* ✅ 자가조치: 내용 없어도 링크만 있으면 "자료 참조"로 뜨게 */
 function labelForSelf(item, n){
   if(item.title) return item.title;
 
   const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
   if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
 
-  if(isLikelyUrl(item.link)){
-    try{
-      const u = item.link.startsWith("http") ? new URL(item.link) : null;
-      if(u) return `자료 참조 · ${u.hostname}`;
-    }catch(e){}
-    return "자료 참조";
-  }
+  if(isLikelyUrl(item.link)) return "자료 참조";
   return `자가조치 ${n}`;
 }
 
-/* ===== 렌더: 메뉴얼 ===== */
+/* JSONP: 요청마다 콜백을 따로 만들어서(경합 없음) 첫 로드도 안정적으로 뜸 */
+function loadSheetTextRows(gid, tq){
+  return new Promise((resolve, reject) => {
+    const cbName = "__gviz_cb_" + Math.random().toString(36).slice(2) + Date.now();
+    const query = encodeURIComponent(tq || "select A,B,C,D,E limit 2000");
+    const tqx = encodeURIComponent(`out:json;responseHandler:${cbName}`);
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${query}&tqx=${tqx}&_=${Date.now()}`;
+
+    const script = document.createElement("script");
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("timeout"));
+    }, 12000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      try{ delete window[cbName]; }catch(e){}
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (resp) => {
+      try{
+        cleanup();
+        if(!resp || resp.status !== "ok"){
+          throw new Error(resp?.errors?.[0]?.message || "load failed");
+        }
+        const rows = (resp.table.rows||[]).map(r => (r.c||[]).map(cell => {
+          if(!cell) return "";
+          const f = (cell.f != null) ? String(cell.f).trim() : "";
+          const v = (cell.v != null) ? String(cell.v).trim() : "";
+          return f || v;
+        }));
+        resolve(rows);
+      }catch(e){
+        reject(e);
+      }
+    };
+
+    script.src = url;
+    script.async = true;
+    script.onerror = () => { cleanup(); reject(new Error("network")); };
+    document.head.appendChild(script);
+  });
+}
+
 function renderManualButtons(items){
   const wrap = $("#manualButtons");
   wrap.innerHTML = "";
@@ -452,7 +458,6 @@ function renderManualButtons(items){
   });
 }
 
-/* ===== 렌더: 자가조치 ===== */
 function renderSelf(items){
   const list = $("#selfList");
   const q = $("#q").value.trim().toLowerCase();
@@ -478,9 +483,8 @@ function renderSelf(items){
       : "";
 
     const linkHtml = isLikelyUrl(x.link)
-  ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a></div>`
-  : "";
-
+      ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a></div>`
+      : "";
 
     const contentHtml = String(x.content||"").trim()
       ? `<div class="content body">${escapeHtml(x.content)}</div>`
@@ -496,50 +500,53 @@ function renderSelf(items){
   });
 }
 
-/* ===== 로딩: 메뉴얼/자가조치 (섞이지 않게 자동분리) ===== */
 async function ensureWirelessLoaded(force=false){
   if(wirelessLoaded && !force) return;
+  if(wirelessLoading && !force) return wirelessLoading;
 
-  const tab = tabFromHash();
-  if(!force && tab !== "home" && tab !== "self") return;
+  wirelessLoading = (async ()=>{
+    const tab = tabFromHash();
+    if(!force && tab !== "home" && tab !== "self") return;
+
+    try{
+      const rawRows = await loadSheetTextRows(WIRELESS_GID, "select A,B,C,D,E limit 2000");
+      const rows = toMSObjects(rawRows);
+
+      const manualByType = rows.filter(x => x.type === "메뉴얼");
+      const selfByType   = rows.filter(x => x.type === "자가조치" && (x.title || x.content || isLikelyUrl(x.link)));
+
+      const manualAuto = rows.filter(x => !x.type && isLikelyUrl(x.link));
+      const selfAuto   = rows.filter(x => !x.type && (String(x.content||"").trim() !== "" || isLikelyUrl(x.link)));
+
+      const manual = (manualByType.length ? manualByType : manualAuto)
+        .map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
+
+      const self = (selfByType.length ? selfByType : selfAuto)
+        .filter(x => x.title || String(x.content||"").trim() !== "" || isLikelyUrl(x.link))
+        .map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
+
+      manualRowsCached = manual;
+      lastSelf = self;
+
+      renderManualButtons(manualRowsCached);
+      if(tabFromHash() === "self") renderSelf(lastSelf);
+
+      wirelessLoaded = true;
+    }catch(e){
+      wirelessLoaded = false;
+      renderManualButtons([]);
+      lastSelf = [];
+      if(tabFromHash() === "self") renderSelf(lastSelf);
+    }
+  })();
 
   try{
-    const rawRows = await loadSheetTextRows(CONFIG.WIRELESS_GID, "select A,B,C,D,E limit 2000");
-    const rows = toMSObjects(rawRows);
-
-    // 1) A열이 정확히 있는 건 그대로
-    const manualByType = rows.filter(x => x.type === "메뉴얼");
-    const selfByType   = rows.filter(x => x.type === "자가조치" && (x.title || x.content || isLikelyUrl(x.link)));
-
-    // 2) A열 비어있을 때도 섞이지 않게:
-    //    - 링크 있으면 메뉴얼
-    //    - 내용 있거나 링크 있으면 자가조치
-    const manualAuto = rows.filter(x => !x.type && isLikelyUrl(x.link));
-    const selfAuto   = rows.filter(x => !x.type && (String(x.content||"").trim() !== "" || isLikelyUrl(x.link)));
-
-    const manual = (manualByType.length ? manualByType : manualAuto)
-      .map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
-
-    const self = (selfByType.length ? selfByType : selfAuto)
-      .filter(x => x.title || String(x.content||"").trim() !== "" || isLikelyUrl(x.link))
-      .map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
-
-    manualRowsCached = manual;
-    lastSelf = self;
-
-    renderManualButtons(manualRowsCached);
-    if(tab === "self") renderSelf(lastSelf);
-
-    wirelessLoaded = true;
-  }catch(e){
-    wirelessLoaded = false;
-    renderManualButtons([]);
-    lastSelf = [];
-    if(tab === "self") renderSelf(lastSelf);
+    return await wirelessLoading;
+  }finally{
+    wirelessLoading = null;
   }
 }
 
-/* ===== AS 이력 ===== */
 function normStatus(s){
   const v = String(s||"").trim();
   if(v==="처리완료" || v==="진행중" || v==="미처리") return v;
@@ -571,7 +578,7 @@ function compactLogRows(rows){
   return data;
 }
 async function loadLogFromSheet(){
-  const raw = await loadSheetTextRows(CONFIG.LOG_GID, "select A,B,C,D,E limit 3000");
+  const raw = await loadSheetTextRows(LOG_GID, "select A,B,C,D,E limit 3000");
   const rows = compactLogRows(raw);
 
   const data = rows.map(r=>({
@@ -634,7 +641,26 @@ async function reloadLog(){
   }
 }
 
-/* ===== 필터 ===== */
+function route(){
+  const tab = tabFromHash();
+  setTabUI(tab);
+
+  if(tab==="home") ensureWirelessLoaded(false);
+  if(tab==="self") { ensureWirelessLoaded(false); renderSelf(lastSelf); }
+  if(tab==="log")  reloadLog();
+}
+
+window.addEventListener("hashchange", route);
+
+$("#q").addEventListener("input", ()=>{
+  const tab = tabFromHash();
+  if(tab==="self") renderSelf(lastSelf);
+  if(tab==="log")  renderLog(lastLog);
+});
+
+$("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
+$("#btnReloadLog").addEventListener("click", reloadLog);
+
 (function initLogFilters(){
   const wrap = $("#logFilters");
   if(!wrap) return;
@@ -647,15 +673,7 @@ async function reloadLog(){
   });
 })();
 
-/* ===== 버튼 ===== */
-$("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
-$("#btnReloadLog").addEventListener("click", reloadLog);
-
-(function start(){
-  const tab = tabFromHash();
-  if(tab === "log") reloadLog();
-  else ensureWirelessLoaded(false);
-})();
+route();
 </script>
 </body>
 </html>
