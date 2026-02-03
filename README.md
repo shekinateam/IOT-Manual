@@ -1,7 +1,8 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
   <title>IoT AS 메뉴얼</title>
   <style>
     *{box-sizing:border-box}
@@ -73,10 +74,16 @@
       border-radius:999px;
       padding:10px 14px;
     }
-    .search input{
+    .search input, .search textarea{
       border:0; outline:0; width:100%;
       background:transparent; color:#e8ecff;
       font-size:14px;
+    }
+    .search textarea{
+      resize:vertical;
+      min-height:92px;
+      line-height:1.45;
+      padding:8px 0;
     }
 
     .card{
@@ -91,7 +98,7 @@
 
     .btnrow{
       display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
+      grid-template-columns:repeat(2, minmax(0, 1fr));
       gap:10px;
       margin-top:12px;
     }
@@ -105,6 +112,8 @@
       text-align:center;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
       min-width:0;
+      cursor:pointer;
+      user-select:none;
     }
     .btn:hover{filter:brightness(1.08);}
     .btn.disabled{
@@ -114,6 +123,8 @@
       cursor:default;
       pointer-events:none;
     }
+
+    #manualButtons{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-top:12px; }
 
     .section{display:none;}
     .section.active{display:block;}
@@ -148,6 +159,7 @@
       max-width:100%;
       overflow:hidden; text-overflow:ellipsis;
     }
+
     .empty{
       padding:14px;
       border:1px dashed rgba(255,255,255,.18);
@@ -216,6 +228,13 @@
     }
     details[open] .preview{display:none;}
 
+    .toast{
+      margin-top:10px;
+      font-size:12px;
+      color:#aab2d5;
+      min-height:16px;
+    }
+
     @media (max-width: 900px){
       .app{grid-template-columns:1fr;}
       .side{
@@ -230,17 +249,14 @@
       .nav a{flex:1; justify-content:center; padding:10px 10px;}
       .chip{display:none;}
       .main{padding:14px;}
-      .btnrow{grid-template-columns:repeat(2, minmax(0, 1fr));}
+      #manualButtons{grid-template-columns:repeat(2, minmax(0, 1fr));}
     }
     @media (max-width: 420px){
       .brand{padding:10px;}
       .brand h1{font-size:14px;}
       .btnrow{grid-template-columns:1fr;}
+      #manualButtons{grid-template-columns:1fr;}
       .btn{white-space:normal; line-height:1.2;}
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-      .list .body{max-height:none !important; overflow:visible !important;}
     }
   </style>
 </head>
@@ -257,6 +273,7 @@
     <nav class="nav">
       <a href="#home" data-tab="home" class="active">🏠 홈 <span class="chip">Links</span></a>
       <a href="#self" data-tab="self">🧯 자가조치 <span class="chip">Guide</span></a>
+      <a href="#ticket" data-tab="ticket">📮 AS 접수 <span class="chip">Tickets</span></a>
       <a href="#log"  data-tab="log">📝 AS 이력 <span class="chip">History</span></a>
     </nav>
   </aside>
@@ -271,7 +288,7 @@
     <section class="section active" id="tab-home">
       <div class="card">
         <h2>메뉴얼</h2>
-        <div class="btnrow" id="manualButtons"></div>
+        <div id="manualButtons"></div>
       </div>
     </section>
 
@@ -282,6 +299,49 @@
           <button class="mini" id="btnReloadSelf">새로고침</button>
         </div>
         <div class="list" id="selfList"></div>
+      </div>
+    </section>
+
+    <section class="section" id="tab-ticket">
+      <div class="card">
+        <div class="headrow" style="align-items:flex-start;">
+          <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+            <h3 style="margin:0">AS 접수</h3>
+            <div class="filters" id="ticketFilters">
+              <div class="fchip active" data-f="all">전체</div>
+              <div class="fchip" data-f="미처리">미처리</div>
+              <div class="fchip" data-f="처리중">처리중</div>
+              <div class="fchip" data-f="처리완료">처리완료</div>
+              <div class="fchip" data-f="이관요청">이관요청</div>
+            </div>
+          </div>
+          <button class="mini" id="btnReloadTicket">새로고침</button>
+        </div>
+
+        <div style="display:grid; gap:10px; margin-top:10px;">
+          <div class="search" style="border-radius:16px;">🏪 <input id="t_store" placeholder="매장명 (필수)" /></div>
+          <div class="search" style="border-radius:16px;">📞 <input id="t_contact" placeholder="매장 연락처" /></div>
+          <div class="search" style="border-radius:16px;">🧩 <input id="t_symptomRoom" placeholder="증상룸" /></div>
+
+          <div class="search" style="border-radius:16px; align-items:flex-start;">
+            📝 <textarea id="t_errorDetail" placeholder="오류 상세내용 (필수)"></textarea>
+          </div>
+
+          <div class="search" style="border-radius:16px; align-items:flex-start;">
+            🧾 <textarea id="t_history" placeholder="대양 처리이력"></textarea>
+          </div>
+
+          <div class="search" style="border-radius:16px;">☎️ <input id="t_assigneeTel" placeholder="지앤서비스 담당자 연락처" /></div>
+
+          <div class="btnrow" style="margin-top:0;">
+            <div class="btn" id="btnSubmitTicket">등록</div>
+            <div class="btn" id="btnClearTicket">초기화</div>
+          </div>
+
+          <div class="toast" id="ticketToast"></div>
+        </div>
+
+        <div class="list" id="ticketList" style="margin-top:14px;"></div>
       </div>
     </section>
 
@@ -309,6 +369,9 @@
 const SHEET_ID = "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4";
 const WIRELESS_GID = "890902374";
 const LOG_GID = "806380229";
+const TICKET_GID = "638541022";
+
+const TICKET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyNuQ-uggjAIIA6wxmxO5TzPDMVTRPFbzB6b1cvBbTptHlVfMUfdfNRl_u9w3VPiYlh/exec";
 
 const $ = (q)=>document.querySelector(q);
 const $$ = (q)=>Array.from(document.querySelectorAll(q));
@@ -321,11 +384,13 @@ let lastSelf = [];
 let lastLog  = [];
 let logFilter = "all";
 
+let lastTickets = [];
+let ticketFilter = "all";
+
 function tabFromHash(){
   const h = (location.hash || "#home").replace("#","");
-  return (["home","self","log"].includes(h)) ? h : "home";
+  return (["home","self","ticket","log"].includes(h)) ? h : "home";
 }
-
 function setTabUI(tab){
   $$(".nav a").forEach(a=>a.classList.toggle("active", a.dataset.tab===tab));
   $$(".section").forEach(s=>s.classList.remove("active"));
@@ -340,57 +405,17 @@ function isLikelyUrl(s){
   if(t.includes("docs.google.com") || t.includes("drive.google.com")) return true;
   return false;
 }
-
 function escapeHtml(str){
   return String(str ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
     .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
-
+function toast(msg){
+  const el = $("#ticketToast");
+  if(el) el.textContent = msg || "";
+}
 function normType(s){ return String(s||"").trim().replace(/\s+/g,""); }
 
-function isHeaderRow(r){
-  const a = normType(r[0]), b = normType(r[1]), c = normType(r[2]);
-  if((a==="구분"||a==="분류") && b==="제목" && c==="내용") return true;
-  if(b==="제목" && c==="내용") return true;
-  if(a==="제목" && b==="내용") return true;
-  return false;
-}
-
-function compactRows(rows){
-  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
-  while(data.length && isHeaderRow(data[0])) data.shift();
-  return data;
-}
-
-function toMSObjects(rows){
-  const data = compactRows(rows);
-  return data.map((r,idx)=>({
-    rowNo: idx+2,
-    type: normType(r[0]),
-    title: String(r[1]||"").trim(),
-    content: String(r[2]||"").trim(),
-    link: String(r[3]||"").trim(),
-    tags: String(r[4]||"").trim()
-  })).filter(x => x.type || x.title || x.content || x.link || x.tags);
-}
-
-function labelForLink(item, n){
-  if(item.title) return item.title;
-  return `메뉴얼 ${n}`;
-}
-
-function labelForSelf(item, n){
-  if(item.title) return item.title;
-
-  const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
-  if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
-
-  if(isLikelyUrl(item.link)) return "자료 참조";
-  return `자가조치 ${n}`;
-}
-
-/* JSONP: 요청마다 콜백을 따로 만들어서(경합 없음) 첫 로드도 안정적으로 뜸 */
 function loadSheetTextRows(gid, tq){
   return new Promise((resolve, reject) => {
     const cbName = "__gviz_cb_" + Math.random().toString(36).slice(2) + Date.now();
@@ -399,10 +424,7 @@ function loadSheetTextRows(gid, tq){
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${query}&tqx=${tqx}&_=${Date.now()}`;
 
     const script = document.createElement("script");
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error("timeout"));
-    }, 12000);
+    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 12000);
 
     function cleanup(){
       clearTimeout(timer);
@@ -423,9 +445,7 @@ function loadSheetTextRows(gid, tq){
           return f || v;
         }));
         resolve(rows);
-      }catch(e){
-        reject(e);
-      }
+      }catch(e){ reject(e); }
     };
 
     script.src = url;
@@ -435,6 +455,38 @@ function loadSheetTextRows(gid, tq){
   });
 }
 
+/** HOME/SELF */
+function isHeaderRowMS(r){
+  const a = normType(r[0]), b = normType(r[1]), c = normType(r[2]);
+  if((a==="구분"||a==="분류") && b==="제목" && c==="내용") return true;
+  if(b==="제목" && c==="내용") return true;
+  if(a==="제목" && b==="내용") return true;
+  return false;
+}
+function compactRowsMS(rows){
+  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
+  while(data.length && isHeaderRowMS(data[0])) data.shift();
+  return data;
+}
+function toMSObjects(rows){
+  const data = compactRowsMS(rows);
+  return data.map((r,idx)=>({
+    rowNo: idx+2,
+    type: normType(r[0]),
+    title: String(r[1]||"").trim(),
+    content: String(r[2]||"").trim(),
+    link: String(r[3]||"").trim(),
+    tags: String(r[4]||"").trim()
+  })).filter(x => x.type || x.title || x.content || x.link || x.tags);
+}
+function labelForLink(item, n){ return item.title ? item.title : `메뉴얼 ${n}`; }
+function labelForSelf(item, n){
+  if(item.title) return item.title;
+  const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
+  if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
+  if(isLikelyUrl(item.link)) return "자료";
+  return `자가조치 ${n}`;
+}
 function renderManualButtons(items){
   const wrap = $("#manualButtons");
   wrap.innerHTML = "";
@@ -446,7 +498,6 @@ function renderManualButtons(items){
     const a = document.createElement("a");
     a.className = "btn";
     a.textContent = x.title || "메뉴얼";
-
     if(isLikelyUrl(x.link)){
       a.href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
       a.target = "_blank";
@@ -457,11 +508,9 @@ function renderManualButtons(items){
     wrap.appendChild(a);
   });
 }
-
 function renderSelf(items){
   const list = $("#selfList");
   const q = $("#q").value.trim().toLowerCase();
-
   const filtered = items.filter(x=>{
     if(!q) return true;
     const blob = `${x.title} ${x.content} ${x.tags} ${x.link}`.toLowerCase();
@@ -483,7 +532,7 @@ function renderSelf(items){
       : "";
 
     const linkHtml = isLikelyUrl(x.link)
-      ? `<div class="meta">자료 참조: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기</a></div>`
+      ? `<div class="meta">자료: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크</a></div>`
       : "";
 
     const contentHtml = String(x.content||"").trim()
@@ -499,7 +548,6 @@ function renderSelf(items){
     list.appendChild(d);
   });
 }
-
 async function ensureWirelessLoaded(force=false){
   if(wirelessLoaded && !force) return;
   if(wirelessLoading && !force) return wirelessLoading;
@@ -540,13 +588,11 @@ async function ensureWirelessLoaded(force=false){
     }
   })();
 
-  try{
-    return await wirelessLoading;
-  }finally{
-    wirelessLoading = null;
-  }
+  try{ return await wirelessLoading; }
+  finally{ wirelessLoading = null; }
 }
 
+/** LOG */
 function normStatus(s){
   const v = String(s||"").trim();
   if(v==="처리완료" || v==="진행중" || v==="미처리") return v;
@@ -630,8 +676,7 @@ function renderLog(items){
   });
 }
 async function reloadLog(){
-  const list = $("#logList");
-  if(tabFromHash()==="log") list.innerHTML = `<div class="empty">불러오는 중…</div>`;
+  if(tabFromHash()==="log") $("#logList").innerHTML = `<div class="empty">불러오는 중…</div>`;
   try{
     lastLog = await loadLogFromSheet();
     renderLog(lastLog);
@@ -641,29 +686,187 @@ async function reloadLog(){
   }
 }
 
+/** TICKETS */
+function normTicketStatus(s){
+  const v = String(s||"").trim();
+  if(["미처리","처리중","처리완료","이관요청"].includes(v)) return v;
+  return v || "미처리";
+}
+function ticketBadge(status){
+  const st = normTicketStatus(status);
+  if(st==="처리완료") return `<span class="badge done">처리완료</span>`;
+  if(st==="처리중") return `<span class="badge prog">처리중</span>`;
+  if(st==="이관요청") return `<span class="badge prog">이관요청</span>`;
+  return `<span class="badge todo">미처리</span>`;
+}
+function isHeaderRowTicket(r){
+  const a = String(r[0]||"").trim().toLowerCase();
+  return a === "id";
+}
+async function loadTicketsFromSheet(){
+  const raw = await loadSheetTextRows(TICKET_GID, "select A,B,C,D,E,F,G,H,I,J limit 3000");
+  let rows = (raw||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
+
+  while(rows.length && isHeaderRowTicket(rows[0])) rows.shift();
+
+  const data = rows.map(r=>({
+    id: String(r[0]||"").trim(),
+    createdAt: String(r[1]||"").trim(),
+    updatedAt: String(r[2]||"").trim(),
+    store: String(r[3]||"").trim(),
+    contact: String(r[4]||"").trim(),
+    symptomRoom: String(r[5]||"").trim(),
+    errorDetail: String(r[6]||"").trim(),
+    history: String(r[7]||"").trim(),
+    assigneeTel: String(r[8]||"").trim(),
+    status: normTicketStatus(r[9])
+  })).filter(x => x.store || x.errorDetail || x.history || x.assigneeTel);
+
+  data.reverse();
+  return data;
+}
+function renderTickets(items){
+  const list = $("#ticketList");
+  const q = $("#q").value.trim().toLowerCase();
+
+  const filtered = items.filter(x=>{
+    if(ticketFilter !== "all" && x.status !== ticketFilter) return false;
+    if(!q) return true;
+    const blob = `${x.createdAt} ${x.store} ${x.contact} ${x.symptomRoom} ${x.errorDetail} ${x.history} ${x.assigneeTel} ${x.status}`.toLowerCase();
+    return blob.includes(q);
+  });
+
+  list.innerHTML = "";
+  if(!filtered.length){
+    list.innerHTML = `<div class="empty">표시할 항목이 없습니다.</div>`;
+    return;
+  }
+
+  filtered.forEach(x=>{
+    const d = document.createElement("details");
+    const head = `${x.store || "매장명 없음"}${x.symptomRoom ? " · " + x.symptomRoom : ""}`;
+    const preview = String(x.errorDetail||"").trim();
+
+    d.innerHTML = `
+      <summary>
+        <div class="logsum">
+          <span class="dt">${escapeHtml(x.createdAt || "")}</span>
+          <span class="store">${escapeHtml(head)}</span>
+          ${ticketBadge(x.status)}
+        </div>
+        ${preview ? `<div class="preview">${escapeHtml(preview)}</div>` : ``}
+      </summary>
+
+      ${x.contact ? `<div class="meta">매장 연락처: ${escapeHtml(x.contact)}</div>` : ``}
+      ${x.symptomRoom ? `<div class="meta">증상룸: ${escapeHtml(x.symptomRoom)}</div>` : ``}
+
+      ${x.errorDetail ? `<div class="content"><b>오류 상세내용</b>\n${escapeHtml(x.errorDetail)}</div>` : ``}
+      ${x.history ? `<div class="content"><b>대양 처리이력</b>\n${escapeHtml(x.history)}</div>` : ``}
+      ${x.assigneeTel ? `<div class="meta">지앤서비스 담당자 연락처: ${escapeHtml(x.assigneeTel)}</div>` : ``}
+
+      <div class="meta">상태: ${escapeHtml(normTicketStatus(x.status))}</div>
+    `;
+    list.appendChild(d);
+  });
+}
+async function reloadTickets(){
+  if(tabFromHash()==="ticket") $("#ticketList").innerHTML = `<div class="empty">불러오는 중…</div>`;
+  try{
+    lastTickets = await loadTicketsFromSheet();
+    renderTickets(lastTickets);
+    toast("");
+  }catch(e){
+    lastTickets = [];
+    renderTickets(lastTickets);
+    toast("불러오기 실패");
+  }
+}
+async function submitTicket(){
+  const store = ($("#t_store")?.value || "").trim();
+  const contact = ($("#t_contact")?.value || "").trim();
+  const symptomRoom = ($("#t_symptomRoom")?.value || "").trim();
+  const errorDetail = ($("#t_errorDetail")?.value || "").trim();
+  const history = ($("#t_history")?.value || "").trim();
+  const assigneeTel = ($("#t_assigneeTel")?.value || "").trim();
+
+  if(!store || !errorDetail){
+    toast("필수값 확인");
+    return;
+  }
+
+  const body = new URLSearchParams({
+    action: "create",
+    store,
+    contact,
+    symptomRoom,
+    errorDetail,
+    history,
+    assigneeTel
+  });
+
+  toast("저장 중");
+
+  await fetch(TICKET_ENDPOINT, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body
+  });
+
+  toast("저장됨");
+  $("#t_symptomRoom").value = "";
+  $("#t_errorDetail").value = "";
+  $("#t_history").value = "";
+  $("#t_assigneeTel").value = "";
+
+  setTimeout(reloadTickets, 900);
+}
+
+/** ROUTE */
 function route(){
   const tab = tabFromHash();
   setTabUI(tab);
 
   if(tab==="home") ensureWirelessLoaded(false);
-  if(tab==="self") { ensureWirelessLoaded(false); renderSelf(lastSelf); }
-  if(tab==="log")  reloadLog();
+  if(tab==="self"){ ensureWirelessLoaded(false); renderSelf(lastSelf); }
+  if(tab==="ticket") reloadTickets();
+  if(tab==="log") reloadLog();
 }
-
 window.addEventListener("hashchange", route);
 
 $("#q").addEventListener("input", ()=>{
   const tab = tabFromHash();
   if(tab==="self") renderSelf(lastSelf);
   if(tab==="log")  renderLog(lastLog);
+  if(tab==="ticket") renderTickets(lastTickets);
 });
 
 $("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
 $("#btnReloadLog").addEventListener("click", reloadLog);
+$("#btnReloadTicket").addEventListener("click", reloadTickets);
+$("#btnSubmitTicket").addEventListener("click", submitTicket);
+$("#btnClearTicket").addEventListener("click", ()=>{
+  $("#t_store").value = "";
+  $("#t_contact").value = "";
+  $("#t_symptomRoom").value = "";
+  $("#t_errorDetail").value = "";
+  $("#t_history").value = "";
+  $("#t_assigneeTel").value = "";
+  toast("");
+});
 
+(function initTicketFilters(){
+  const wrap = $("#ticketFilters");
+  wrap.addEventListener("click", (ev)=>{
+    const btn = ev.target.closest(".fchip");
+    if(!btn) return;
+    ticketFilter = btn.dataset.f || "all";
+    $$("#ticketFilters .fchip").forEach(x=>x.classList.toggle("active", x.dataset.f === ticketFilter));
+    renderTickets(lastTickets);
+  });
+})();
 (function initLogFilters(){
   const wrap = $("#logFilters");
-  if(!wrap) return;
   wrap.addEventListener("click", (ev)=>{
     const btn = ev.target.closest(".fchip");
     if(!btn) return;
