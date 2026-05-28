@@ -1,313 +1,567 @@
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1020" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#070d1a"/>
   <title>IoT AS 메뉴얼</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet"/>
   <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
-      color:#e8ecff;
-      background:
-        radial-gradient(1200px 800px at 20% -10%, #1a2c6f 0%, transparent 55%),
-        radial-gradient(900px 700px at 110% 10%, #1b5b4a 0%, transparent 55%),
-        #0b1020;
+    :root{
+      --bg:#070d1a;
+      --surface:rgba(255,255,255,.035);
+      --surface2:rgba(255,255,255,.055);
+      --border:rgba(255,255,255,.08);
+      --border2:rgba(255,255,255,.13);
+      --text:#dce5ff;
+      --text2:#6b7ba4;
+      --text3:#3d4f70;
+      --accent:#5b8cff;
+      --accent-bg:rgba(91,140,255,.13);
+      --accent-bd:rgba(91,140,255,.28);
+      --green:#3dd68c;
+      --green-bg:rgba(61,214,140,.10);
+      --green-bd:rgba(61,214,140,.28);
+      --amber:#f0a429;
+      --amber-bg:rgba(240,164,41,.10);
+      --amber-bd:rgba(240,164,41,.28);
+      --red-bg:rgba(240,82,82,.10);
+      --red-bd:rgba(240,82,82,.30);
+      --rad:13px;
+      --radsm:9px;
+      --radlg:18px;
+      --shadow:0 8px 32px rgba(0,0,0,.45);
     }
-    a{color:inherit; text-decoration:none}
-    .app{display:grid; grid-template-columns:280px 1fr; min-height:100vh;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:'';
+      position:fixed;inset:0;
+      background:
+        radial-gradient(ellipse 900px 600px at 10% -5%,rgba(25,45,110,.55) 0%,transparent 58%),
+        radial-gradient(ellipse 600px 500px at 92% 4%,rgba(15,85,65,.40) 0%,transparent 55%),
+        radial-gradient(ellipse 400px 400px at 50% 105%,rgba(18,28,75,.35) 0%,transparent 60%);
+      pointer-events:none;z-index:0;
+    }
+    body::after{
+      content:'';
+      position:fixed;inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.013) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.013) 1px,transparent 1px);
+      background-size:44px 44px;
+      pointer-events:none;z-index:0;
+    }
+    a{color:inherit;text-decoration:none}
+    .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh;position:relative;z-index:1}
 
+    /* ── SIDEBAR ── */
     .side{
-      position:sticky; top:0; height:100vh;
-      padding:18px;
-      border-right:1px solid rgba(255,255,255,.10);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), transparent 40%);
+      position:sticky;top:0;height:100vh;
+      padding:16px;
+      display:flex;flex-direction:column;
+      border-right:1px solid var(--border);
+      background:rgba(7,13,26,.65);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
     }
     .brand{
-      display:flex; gap:12px; align-items:center;
+      display:flex;gap:11px;align-items:center;
       padding:12px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      background:rgba(255,255,255,.03);
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
+      border:1px solid var(--border);
+      border-radius:var(--rad);
+      background:var(--surface);
     }
     .logo{
-      width:42px; height:42px; border-radius:14px;
-      background:linear-gradient(135deg, #7aa2ff, #8ef0d0);
-      display:grid; place-items:center;
-      color:#07101c; font-weight:900;
-      flex:0 0 auto;
+      width:40px;height:40px;border-radius:12px;flex-shrink:0;
+      background:linear-gradient(135deg,#5b8cff 0%,#3dd68c 100%);
+      display:grid;place-items:center;
+      font-size:10.5px;font-weight:800;color:#070d1a;letter-spacing:-.3px;
     }
-    .brand h1{margin:0; font-size:15px; line-height:1.2}
-    .brand p{margin:2px 0 0; font-size:12px; color:#aab2d5}
-
-    .nav{margin-top:14px; display:flex; flex-direction:column; gap:8px;}
+    .brand-text h1{font-size:14px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+    .brand-text p{font-size:11px;color:var(--text2);margin-top:1px}
+    .nav{margin-top:12px;display:flex;flex-direction:column;gap:4px}
     .nav a{
-      padding:10px 12px; border-radius:14px;
+      display:flex;align-items:center;gap:9px;
+      padding:10px 12px;
+      border-radius:var(--radsm);
       border:1px solid transparent;
-      color:#aab2d5;
-      display:flex; gap:10px; align-items:center;
+      color:var(--text2);
+      font-size:13.5px;font-weight:500;
+      transition:color .15s,background .15s,border-color .15s;
     }
-    .nav a:hover{background:rgba(255,255,255,.04); color:#e8ecff;}
-    .nav a.active{
-      background:rgba(122,162,255,.13);
-      border-color:rgba(122,162,255,.28);
-      color:#e8ecff;
+    .nav a:hover{background:var(--surface);color:var(--text)}
+    .nav a.active{background:var(--accent-bg);border-color:var(--accent-bd);color:var(--text)}
+    .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+    .nav-badge{
+      margin-left:auto;font-size:10px;font-weight:700;
+      padding:2px 7px;border-radius:999px;
+      background:var(--accent-bg);border:1px solid var(--accent-bd);color:#a8c1ff;
+      display:none;
     }
+    .nav-badge.show{display:block}
     .chip{
-      font-size:11px; padding:2px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      color:#aab2d5;
-      margin-left:auto;
-      flex:0 0 auto;
-      opacity:.75;
+      margin-left:auto;font-size:10.5px;padding:2px 8px;border-radius:999px;
+      border:1px solid var(--border);color:var(--text3);flex-shrink:0;
     }
+    .side-foot{
+      margin-top:auto;padding-top:12px;
+      border-top:1px solid var(--border);
+    }
+    .side-foot p{font-size:11px;color:var(--text3);text-align:center}
 
-    .main{padding:22px; max-width:1100px; width:100%;}
-    .topbar{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px;}
-    .search{
-      flex:1; min-width:0;
-      display:flex; align-items:center; gap:10px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
+    /* ── MAIN ── */
+    .main{padding:22px;max-width:960px;width:100%;min-width:0}
+    .topbar{margin-bottom:16px}
+    .search-wrap{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 16px;
+      border:1px solid var(--border);
       border-radius:999px;
-      padding:10px 14px;
+      background:var(--surface);
+      transition:border-color .15s,background .15s;
     }
-    .search input, .search textarea{
-      border:0; outline:0; width:100%;
-      background:transparent; color:#e8ecff;
-      font-size:14px;
+    .search-wrap:focus-within{border-color:var(--accent-bd);background:rgba(91,140,255,.05)}
+    .search-wrap input{
+      border:0;outline:0;background:transparent;
+      color:var(--text);font-size:13.5px;font-family:inherit;width:100%;
     }
-    .search textarea{
-      resize:vertical;
-      min-height:92px;
-      line-height:1.45;
-      padding:8px 0;
-    }
+    .search-wrap input::placeholder{color:var(--text3)}
+    .search-icon{color:var(--text3);font-size:14px;flex-shrink:0}
+
+    .section{display:none;animation:fadeUp .2s ease}
+    .section.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
     .card{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      background:rgba(255,255,255,.03);
-      box-shadow:0 12px 40px rgba(0,0,0,.35);
-      padding:16px;
+      border:1px solid var(--border);
+      border-radius:var(--radlg);
+      background:rgba(255,255,255,.025);
+      box-shadow:var(--shadow);
+      padding:18px;
+      backdrop-filter:blur(10px);
     }
-    .card h2{margin:0 0 10px; font-size:18px;}
-    .card h3{margin:0 0 10px; font-size:15px;}
+    .card-head{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:14px;gap:12px;flex-wrap:wrap;
+    }
+    .card-head-left{display:flex;flex-direction:column;gap:10px;min-width:0}
+    .card-title{font-size:15px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
 
-    .btnrow{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:10px;
-      margin-top:12px;
+    /* Manual buttons */
+    #manualButtons{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;margin-top:12px;
     }
-    .btn{
-      display:flex; align-items:center; justify-content:center;
-      padding:12px 14px; border-radius:14px;
-      border:1px solid rgba(122,162,255,.35);
-      background:rgba(122,162,255,.12);
-      color:#e8ecff;
-      font-size:14px;
-      text-align:center;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      min-width:0;
+    .btn-manual{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:12px 10px;
+      border-radius:var(--rad);
+      border:1px solid var(--accent-bd);
+      background:var(--accent-bg);
+      color:var(--text);font-size:13px;font-weight:500;font-family:inherit;
+      text-align:center;text-decoration:none;
       cursor:pointer;
-      user-select:none;
+      transition:filter .15s,border-color .15s;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
-    .btn:hover{filter:brightness(1.08);}
-    .btn.disabled{
-      opacity:.45;
-      border-color:rgba(255,255,255,.18);
-      background:rgba(255,255,255,.06);
-      cursor:default;
-      pointer-events:none;
+    .btn-manual:hover{filter:brightness(1.1);border-color:rgba(91,140,255,.5)}
+    .btn-manual.disabled{
+      opacity:.3;border-color:var(--border);background:var(--surface);
+      cursor:default;pointer-events:none;
     }
 
-    #manualButtons{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-top:12px; }
-
-    .section{display:none;}
-    .section.active{display:block;}
-
-    .list{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
-    details{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:10px 12px;
-      background:rgba(0,0,0,.14);
-      overflow:hidden;
-    }
-    details[open]{background:rgba(0,0,0,.18);}
-    summary{cursor:pointer; font-weight:800;}
-    summary::-webkit-details-marker{display:none}
-    .meta{margin-top:8px; font-size:12px; color:#aab2d5; word-break:break-word;}
-    .content{
-      margin-top:10px;
-      color:#e8ecff;
-      font-size:13px;
-      line-height:1.6;
-      white-space:pre-wrap;
-      word-break:break-word;
-    }
-
-    .pillchip{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
-    .pillchip span{
-      font-size:11px; padding:4px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      color:#aab2d5;
-      background:rgba(0,0,0,.10);
-      max-width:100%;
-      overflow:hidden; text-overflow:ellipsis;
-    }
-
-    .empty{
-      padding:14px;
-      border:1px dashed rgba(255,255,255,.18);
-      border-radius:14px;
-      color:#aab2d5;
-      background:rgba(0,0,0,.10);
-    }
-
-    .headrow{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
-    .mini{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.04);
-      color:#e8ecff;
-      font-size:13px;
+    /* Reload btn */
+    .btn-reload{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 14px;
+      border-radius:var(--radsm);
+      border:1px solid var(--border2);background:var(--surface);
+      color:var(--text2);font-size:12.5px;font-weight:500;font-family:inherit;
       cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
+      transition:color .15s,background .15s;flex-shrink:0;
     }
-    .mini:hover{filter:brightness(1.08);}
-
-    .filters{display:flex; gap:8px; flex-wrap:wrap; margin:0;}
-    .fchip{
-      display:inline-flex; align-items:center;
-      font-size:12px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.12);
-      color:#aab2d5;
+    .btn-reload:hover{color:var(--text);background:var(--surface2)}
+    .btn-excel{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 14px;
+      border-radius:var(--radsm);
+      border:1px solid var(--green-bd);
+      background:var(--green-bg);
+      color:#a8f0ce;font-size:12.5px;font-weight:600;font-family:inherit;
       cursor:pointer;
-      user-select:none;
+      transition:filter .15s;flex-shrink:0;
     }
-    .fchip.active{
-      color:#e8ecff;
-      border-color:rgba(122,162,255,.35);
-      background:rgba(122,162,255,.14);
-    }
+    .btn-excel:hover{filter:brightness(1.12)}
+    .btn-excel:active{filter:brightness(.9)}
+    .btn-excel.loading{opacity:.6;cursor:default;pointer-events:none}
+    .head-btns{display:flex;gap:8px;align-items:center;flex-shrink:0}
+    .btn-reload .ri{display:inline-block;transition:transform .25s}
+    .btn-reload.spin .ri{animation:rot .7s linear infinite}
+    @keyframes rot{to{transform:rotate(360deg)}}
 
-    .logsum{display:flex; gap:10px; align-items:center; flex-wrap:wrap; line-height:1.3;}
-    .logsum .dt{color:#aab2d5; font-weight:800; font-size:12px;}
-    .logsum .store{font-weight:900;}
-    .badge{
-      font-size:11px; padding:3px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.10);
-      color:#aab2d5;
-    }
-    .badge.done{border-color:rgba(142,240,208,.35); color:#c6fff0; background:rgba(142,240,208,.10);}
-    .badge.prog{border-color:rgba(255,210,120,.35); color:#ffe9c1; background:rgba(255,210,120,.10);}
-    .badge.todo{border-color:rgba(255,255,255,.18);}
+    /* List */
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 
-    .preview{
-      margin-top:8px;
-      color:rgba(232,236,255,.88);
-      font-size:12.5px;
+    /* Accordion */
+    .acc{
+      border:1px solid var(--border);border-radius:var(--rad);
+      background:rgba(0,0,0,.15);overflow:hidden;
+      transition:border-color .15s;
+      animation:stag .22s ease both;
+    }
+    .acc:hover{border-color:var(--border2)}
+    .acc.open{border-color:rgba(91,140,255,.22);background:rgba(0,0,0,.22)}
+    @keyframes stag{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    .acc-hd{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      padding:11px 13px;cursor:pointer;user-select:none;
+    }
+    .acc-hd-left{flex:1;min-width:0}
+    .acc-chev{font-size:12px;color:var(--text3);flex-shrink:0;margin-top:3px;transition:transform .2s}
+    .acc.open .acc-chev{transform:rotate(180deg)}
+    .acc-title{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.3}
+    .acc-prev{
+      font-size:12px;color:var(--text2);margin-top:4px;
       line-height:1.45;
-      display:-webkit-box;
-      -webkit-line-clamp:3;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-      word-break:break-word;
-      white-space:pre-wrap;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+      overflow:hidden;white-space:pre-wrap;word-break:break-word;
     }
-    details[open] .preview{display:none;}
+    .acc.open .acc-prev{display:none}
+    .acc-body{max-height:0;overflow:hidden;transition:max-height .28s cubic-bezier(.4,0,.2,1)}
+    .acc.open .acc-body{max-height:2400px}
+    .acc-inner{
+      padding:0 13px 13px;
+      border-top:1px solid var(--border);
+    }
+    .acc-content{
+      font-size:13px;color:var(--text);line-height:1.65;
+      white-space:pre-wrap;word-break:break-word;padding-top:10px;
+    }
+    .acc-meta{
+      font-size:11.5px;color:var(--text2);margin-top:7px;
+      display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    }
+    .acc-meta a{color:var(--accent)}
+    .acc-meta a:hover{text-decoration:underline}
 
+    /* Pills */
+    .pill-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+    .pill{
+      font-size:10.5px;padding:3px 8px;border-radius:999px;
+      border:1px solid var(--border);color:var(--text2);background:rgba(0,0,0,.12);
+    }
+
+    /* Badges */
+    .badge{
+      display:inline-flex;align-items:center;gap:4px;
+      font-size:11px;font-weight:600;padding:3px 9px;
+      border-radius:999px;flex-shrink:0;
+    }
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .badge.done{background:var(--green-bg);border:1px solid var(--green-bd);color:#a8f0ce}
+    .badge.done::before{background:var(--green)}
+    .badge.prog{background:var(--amber-bg);border:1px solid var(--amber-bd);color:#ffd9a0}
+    .badge.prog::before{background:var(--amber);animation:pulse 1.5s ease infinite}
+    .badge.todo{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text2)}
+    .badge.todo::before{background:var(--text3)}
+    .badge.xfer{background:var(--accent-bg);border:1px solid var(--accent-bd);color:#a8c1ff}
+    .badge.xfer::before{background:var(--accent);animation:pulse 1.5s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* Log/ticket header row */
+    .log-sum{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+    .log-dt{
+      font-size:11px;font-weight:600;color:var(--text3);
+      font-variant-numeric:tabular-nums;
+      font-family:"SF Mono","Fira Code",monospace;
+    }
+    .log-store{font-size:13.5px;font-weight:700;color:var(--text)}
+
+    /* Filter chips */
+    .filter-row{display:flex;gap:6px;flex-wrap:wrap}
+    .fchip{
+      font-size:12px;font-weight:500;padding:6px 12px;border-radius:999px;
+      border:1px solid var(--border);background:rgba(0,0,0,.1);color:var(--text2);
+      cursor:pointer;transition:color .15s,border-color .15s,background .15s;user-select:none;
+    }
+    .fchip:hover{color:var(--text);border-color:var(--border2)}
+    .fchip.active{color:var(--text);border-color:var(--accent-bd);background:var(--accent-bg)}
+
+    /* Form */
+    .form-grid{display:grid;gap:8px;margin-top:10px}
+    .field{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;
+      border:1px solid var(--border);border-radius:var(--rad);
+      background:var(--surface);
+      transition:border-color .15s,background .15s;
+    }
+    .field:focus-within{border-color:var(--accent-bd);background:rgba(91,140,255,.04)}
+    .field.err{border-color:var(--red-bd);background:var(--red-bg)}
+    .field.top{align-items:flex-start}
+    .field-ic{font-size:14px;flex-shrink:0;color:var(--text3)}
+    .field input,.field textarea{
+      border:0;outline:0;background:transparent;
+      color:var(--text);font-size:13.5px;font-family:inherit;width:100%;
+    }
+    .field textarea{resize:vertical;min-height:80px;line-height:1.5}
+    .field input::placeholder,.field textarea::placeholder{color:var(--text3)}
+    .cc{font-size:10px;color:var(--text3);flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums}
+    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .btn-sub{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:12px;border-radius:var(--rad);
+      border:1px solid var(--accent-bd);background:var(--accent-bg);
+      color:var(--text);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;
+      transition:filter .15s;
+    }
+    .btn-sub:hover{filter:brightness(1.1)}
+    .btn-clr{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:12px;border-radius:var(--rad);
+      border:1px solid var(--border2);background:var(--surface);
+      color:var(--text2);font-size:13.5px;font-weight:500;font-family:inherit;cursor:pointer;
+      transition:color .15s,background .15s;
+    }
+    .btn-clr:hover{color:var(--text);background:var(--surface2)}
+    .divider{height:1px;background:var(--border);margin:16px 0}
+
+    /* Copy btn */
+    .copy{
+      display:inline-flex;align-items:center;gap:3px;
+      font-size:11px;padding:3px 8px;border-radius:6px;
+      border:1px solid var(--border);background:var(--surface);
+      color:var(--text2);cursor:pointer;font-family:inherit;
+      transition:color .15s,border-color .15s;
+    }
+    .copy:hover{color:var(--text);border-color:var(--border2)}
+
+    /* Toast */
+    .toast-wrap{
+      position:fixed;bottom:24px;right:24px;
+      display:flex;flex-direction:column;gap:8px;
+      z-index:1000;pointer-events:none;
+    }
     .toast{
-      margin-top:10px;
-      font-size:12px;
-      color:#aab2d5;
-      min-height:16px;
+      display:flex;align-items:center;gap:10px;
+      padding:12px 16px;min-width:180px;
+      border-radius:var(--rad);
+      border:1px solid var(--border);
+      background:rgba(10,18,36,.96);
+      backdrop-filter:blur(20px);
+      box-shadow:var(--shadow);
+      font-size:13px;font-weight:500;color:var(--text);
+      animation:tin .2s ease;pointer-events:all;
+      position:relative;overflow:hidden;
     }
+    .toast.ok{border-color:var(--green-bd)}
+    .toast.er{border-color:var(--red-bd)}
+    .toast.ld{border-color:var(--accent-bd)}
+    .toast-bar{
+      position:absolute;bottom:0;left:0;height:2px;
+      background:var(--accent);border-radius:0 0 1px 1px;
+      animation:tbar 2.6s linear forwards;
+    }
+    .toast.ok .toast-bar{background:var(--green)}
+    .toast.er .toast-bar{background:#f05252}
+    @keyframes tin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes tbar{from{width:100%}to{width:0}}
 
-    @media (max-width: 900px){
-      .app{grid-template-columns:1fr;}
-      .side{
-        position:sticky; top:0; height:auto; z-index:10;
-        border-right:0;
-        border-bottom:1px solid rgba(255,255,255,.10);
-        padding:12px;
-        backdrop-filter:blur(10px);
-        background:rgba(11,16,32,.92);
-      }
-      .nav{flex-direction:row; gap:8px; margin-top:10px;}
-      .nav a{flex:1; justify-content:center; padding:10px 10px;}
-      .chip{display:none;}
-      .main{padding:14px;}
-      #manualButtons{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    /* Skeleton */
+    .sk-item{border:1px solid var(--border);border-radius:var(--rad);padding:13px;display:flex;flex-direction:column;gap:8px}
+    .sk{
+      background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);
+      background-size:200% 100%;
+      animation:shim 1.5s infinite;
+      border-radius:5px;height:12px;
     }
-    @media (max-width: 420px){
-      .brand{padding:10px;}
-      .brand h1{font-size:14px;}
-      .btnrow{grid-template-columns:1fr;}
-      #manualButtons{grid-template-columns:1fr;}
-      .btn{white-space:normal; line-height:1.2;}
+    .sk.w80{width:80%}.sk.w60{width:60%}.sk.w40{width:40%}
+    @keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
+
+    /* Highlight */
+    mark{background:rgba(91,140,255,.25);color:#c8d8ff;border-radius:2px;font-style:normal}
+
+    /* Empty */
+    .empty{
+      padding:28px 16px;
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+      border:1px dashed var(--border2);border-radius:var(--rad);
+      background:rgba(0,0,0,.08);margin-top:12px;
+    }
+    .empty-ic{font-size:26px;opacity:.4}
+    .empty p{font-size:13px;color:var(--text2);text-align:center}
+
+    /* Bottom nav (mobile) */
+    .bnav{
+      display:none;position:fixed;bottom:0;left:0;right:0;
+      height:58px;
+      background:rgba(7,13,26,.93);
+      backdrop-filter:blur(20px);
+      border-top:1px solid var(--border);
+      z-index:50;
+      padding-bottom:env(safe-area-inset-bottom,0);
+    }
+    .bnav-inner{display:flex;height:100%;align-items:stretch}
+    .bnav-a{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      font-size:10px;font-weight:600;color:var(--text3);text-decoration:none;
+      transition:color .15s;
+    }
+    .bnav-ic{font-size:20px}
+    .bnav-a.active{color:var(--accent)}
+
+    /* ── PW OVERLAY ── */
+    .pw-overlay{
+      position:fixed;inset:0;z-index:200;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(7,13,26,.88);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      animation:fadeUp .2s ease;
+    }
+    .pw-box{
+      width:100%;max-width:320px;
+      padding:28px 24px;
+      border:1px solid var(--border2);
+      border-radius:var(--radlg);
+      background:rgba(12,20,42,.95);
+      box-shadow:var(--shadow);
+      display:flex;flex-direction:column;gap:16px;
+      margin:16px;
+    }
+    .pw-title{font-size:15px;font-weight:700;color:var(--text);text-align:center}
+    .pw-dots{
+      display:flex;gap:14px;justify-content:center;align-items:center;
+      height:28px;
+    }
+    .pw-dot{
+      width:12px;height:12px;border-radius:50%;
+      border:2px solid var(--border2);
+      background:transparent;
+      transition:background .15s,border-color .15s;
+    }
+    .pw-dot.filled{background:var(--accent);border-color:var(--accent)}
+    .pw-dot.err{background:var(--red-bd);border-color:#f05252;animation:shake .35s ease}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+    .pw-pad{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+    }
+    .pw-key{
+      aspect-ratio:1;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:var(--rad);
+      border:1px solid var(--border);
+      background:var(--surface);
+      font-size:18px;font-weight:700;color:var(--text);
+      cursor:pointer;
+      user-select:none;
+      transition:background .12s,border-color .12s,transform .1s;
+    }
+    .pw-key:hover{background:var(--surface2);border-color:var(--border2)}
+    .pw-key:active{transform:scale(.93)}
+    .pw-key.del{font-size:14px;color:var(--text2)}
+    .pw-key.zero{grid-column:2}
+    .pw-cancel{
+      font-size:12px;font-weight:500;color:var(--text2);
+      text-align:center;cursor:pointer;padding:4px;
+      transition:color .15s;
+    }
+    .pw-cancel:hover{color:var(--text)}
+
+    /* Responsive */
+    @media(max-width:900px){
+      .app{grid-template-columns:1fr}
+      .side{display:none}
+      .main{padding:14px 14px 78px}
+      #manualButtons{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .bnav{display:flex}
+      .toast-wrap{bottom:68px;right:12px;left:12px}
+      .toast{min-width:0}
+    }
+    @media(max-width:480px){
+      #manualButtons{grid-template-columns:1fr}
+      .btn-manual{white-space:normal;line-height:1.3}
     }
   </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- ── SIDEBAR ── -->
   <aside class="side">
     <div class="brand">
       <div class="logo">IOT</div>
-      <div>
+      <div class="brand-text">
         <h1>IoT AS 메뉴얼</h1>
-        <p>Support</p>
+
       </div>
     </div>
     <nav class="nav">
-      <a href="#home" data-tab="home" class="active">🏠 홈 <span class="chip">Links</span></a>
-      <a href="#self" data-tab="self">🧯 자가조치 <span class="chip">Guide</span></a>
-      <a href="#ticket" data-tab="ticket">📮 AS 접수 <span class="chip">Tickets</span></a>
-      <a href="#log"  data-tab="log">📝 AS 이력 <span class="chip">History</span></a>
+      <a href="#home" data-tab="home" class="active">
+        <span class="nav-icon">🏠</span> 홈
+        <span class="chip">Links</span>
+      </a>
+      <a href="#self" data-tab="self">
+        <span class="nav-icon">🧯</span> 자가조치
+        <span class="chip">Guide</span>
+      </a>
+      <a href="#ticket" data-tab="ticket">
+        <span class="nav-icon">📮</span> AS 접수
+        <span class="nav-badge" id="navBadge"></span>
+      </a>
+      <a href="#log" data-tab="log">
+        <span class="nav-icon">📋</span> 대양 자체접수
+        <span class="chip">History</span>
+      </a>
     </nav>
+
   </aside>
 
+  <!-- ── MAIN ── -->
   <main class="main">
     <div class="topbar">
-      <div class="search" title="검색">
-        🔎 <input id="q" placeholder="검색어를 입력하세요" />
+      <div class="search-wrap">
+        <span class="search-icon">🔎</span>
+        <input id="q" placeholder="검색어를 입력하세요" autocomplete="off"/>
       </div>
     </div>
 
+    <!-- HOME -->
     <section class="section active" id="tab-home">
       <div class="card">
-        <h2>메뉴얼</h2>
+        <div class="card-head">
+          <span class="card-title">📋 메뉴얼</span>
+        </div>
         <div id="manualButtons"></div>
       </div>
     </section>
 
+    <!-- SELF -->
     <section class="section" id="tab-self">
       <div class="card">
-        <div class="headrow">
-          <h3 style="margin:0">자가조치</h3>
-          <button class="mini" id="btnReloadSelf">새로고침</button>
+        <div class="card-head">
+          <span class="card-title">🧯 자가조치</span>
+          <button class="btn-reload" id="btnReloadSelf"><span class="ri">↻</span> 새로고침</button>
         </div>
         <div class="list" id="selfList"></div>
       </div>
     </section>
 
+    <!-- TICKET -->
     <section class="section" id="tab-ticket">
       <div class="card">
-        <div class="headrow" style="align-items:flex-start;">
-          <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
-            <h3 style="margin:0">AS 접수</h3>
-            <div class="filters" id="ticketFilters">
+        <div class="card-head" style="align-items:flex-start">
+          <div class="card-head-left">
+            <span class="card-title">📮 AS 접수</span>
+            <div class="filter-row" id="ticketFilters">
               <div class="fchip active" data-f="all">전체</div>
               <div class="fchip" data-f="미처리">미처리</div>
               <div class="fchip" data-f="처리중">처리중</div>
@@ -315,568 +569,801 @@
               <div class="fchip" data-f="이관요청">이관요청</div>
             </div>
           </div>
-          <button class="mini" id="btnReloadTicket">새로고침</button>
+          <div class="head-btns">
+            <button class="btn-excel" id="btnExcel">⬇ 엑셀 내려받기</button>
+            <button class="btn-reload" id="btnReloadTicket"><span class="ri">↻</span> 새로고침</button>
+          </div>
         </div>
 
-        <div style="display:grid; gap:10px; margin-top:10px;">
-          <div class="search" style="border-radius:16px;">🏪 <input id="t_store" placeholder="매장명 (필수)" /></div>
-          <div class="search" style="border-radius:16px;">📞 <input id="t_contact" placeholder="매장 연락처" /></div>
-          <div class="search" style="border-radius:16px;">🧩 <input id="t_symptomRoom" placeholder="증상룸" /></div>
-
-          <div class="search" style="border-radius:16px; align-items:flex-start;">
-            📝 <textarea id="t_errorDetail" placeholder="오류 상세내용 (필수)"></textarea>
+        <div class="form-grid">
+          <div class="field" id="f_store">
+            <span class="field-ic">🏪</span>
+            <input id="t_store" placeholder="매장명 (필수)" autocomplete="off"/>
           </div>
-
-          <div class="search" style="border-radius:16px; align-items:flex-start;">
-            🧾 <textarea id="t_history" placeholder="대양 처리이력"></textarea>
+          <div class="field">
+            <span class="field-ic">📞</span>
+            <input id="t_contact" placeholder="매장 연락처" autocomplete="off"/>
           </div>
-
-          <div class="search" style="border-radius:16px;">☎️ <input id="t_assigneeTel" placeholder="지앤서비스 담당자 연락처" /></div>
-
-          <div class="btnrow" style="margin-top:0;">
-            <div class="btn" id="btnSubmitTicket">등록</div>
-            <div class="btn" id="btnClearTicket">초기화</div>
+          <div class="field">
+            <span class="field-ic">🧩</span>
+            <input id="t_symptomRoom" placeholder="증상룸" autocomplete="off"/>
           </div>
-
-          <div class="toast" id="ticketToast"></div>
+          <div class="field top" id="f_err">
+            <span class="field-ic">📝</span>
+            <textarea id="t_errorDetail" placeholder="오류 상세내용 (필수)" maxlength="1000"></textarea>
+            <span class="cc" id="cc1">0/1000</span>
+          </div>
+          <div class="field top">
+            <span class="field-ic">🧾</span>
+            <textarea id="t_history" placeholder="대양 처리이력" maxlength="1000"></textarea>
+            <span class="cc" id="cc2">0/1000</span>
+          </div>
+          <div class="field">
+            <span class="field-ic">☎️</span>
+            <input id="t_assigneeTel" placeholder="지앤서비스 담당자 연락처" autocomplete="off"/>
+          </div>
+          <div class="btn-row">
+            <button class="btn-sub" id="btnSubmit">✅ 등록</button>
+            <button class="btn-clr" id="btnClear">🗑 초기화</button>
+          </div>
         </div>
 
-        <div class="list" id="ticketList" style="margin-top:14px;"></div>
+        <div class="divider"></div>
+        <div class="list" id="ticketList"></div>
       </div>
     </section>
 
+    <!-- LOG -->
     <section class="section" id="tab-log">
       <div class="card">
-        <div class="headrow" style="align-items:flex-start;">
-          <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
-            <h3 style="margin:0">AS 이력</h3>
-            <div class="filters" id="logFilters">
+        <div class="card-head" style="align-items:flex-start">
+          <div class="card-head-left">
+            <span class="card-title">📋 대양 자체접수</span>
+            <div class="filter-row" id="logFilters">
               <div class="fchip active" data-f="all">전체</div>
               <div class="fchip" data-f="미처리">미처리</div>
               <div class="fchip" data-f="진행중">진행중</div>
               <div class="fchip" data-f="처리완료">처리완료</div>
             </div>
           </div>
-          <button class="mini" id="btnReloadLog">새로고침</button>
+          <div class="head-btns">
+            <button class="btn-excel" id="btnExcelLog">⬇ 엑셀 내려받기</button>
+            <button class="btn-reload" id="btnReloadLog"><span class="ri">↻</span> 새로고침</button>
+          </div>
         </div>
         <div class="list" id="logList"></div>
       </div>
     </section>
+
   </main>
 </div>
 
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="#home" data-tab="home" class="bnav-a active"><span class="bnav-ic">🏠</span>홈</a>
+    <a href="#self" data-tab="self" class="bnav-a"><span class="bnav-ic">🧯</span>자가조치</a>
+    <a href="#ticket" data-tab="ticket" class="bnav-a"><span class="bnav-ic">📮</span>접수</a>
+    <a href="#log" data-tab="log" class="bnav-a"><span class="bnav-ic">📋</span>자체접수</a>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- PW OVERLAY -->
+<div class="pw-overlay" id="pwOverlay" style="display:none">
+  <div class="pw-box">
+    <div class="pw-title">🔒 AS 접수</div>
+    <div class="pw-dots" id="pwDots">
+      <div class="pw-dot" id="pd0"></div>
+      <div class="pw-dot" id="pd1"></div>
+      <div class="pw-dot" id="pd2"></div>
+      <div class="pw-dot" id="pd3"></div>
+    </div>
+    <div class="pw-pad">
+      <div class="pw-key" data-k="1">1</div>
+      <div class="pw-key" data-k="2">2</div>
+      <div class="pw-key" data-k="3">3</div>
+      <div class="pw-key" data-k="4">4</div>
+      <div class="pw-key" data-k="5">5</div>
+      <div class="pw-key" data-k="6">6</div>
+      <div class="pw-key" data-k="7">7</div>
+      <div class="pw-key" data-k="8">8</div>
+      <div class="pw-key" data-k="9">9</div>
+      <div class="pw-key del" data-k="del">⌫</div>
+      <div class="pw-key zero" data-k="0">0</div>
+    </div>
+    <div class="pw-cancel" id="pwCancel">취소</div>
+  </div>
+</div>
+
 <script>
-const SHEET_ID = "14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4";
-const WIRELESS_GID = "890902374";
-const LOG_GID = "806380229";
-const TICKET_GID = "638541022";
+/* ── CONFIG ─────────────────────────── */
+const SHEET_ID="14actQ-pC6cLXRlqNzS1F0AVuUTAdJC4K_hhq7rOyBX4";
+const WIRELESS_GID="890902374";
+const LOG_GID="806380229";
+const TICKET_GID="638541022";
+const TICKET_EP="https://script.google.com/macros/s/AKfycbyNuQ-uggjAIIA6wxmxO5TzPDMVTRPFbzB6b1cvBbTptHlVfMUfdfNRl_u9w3VPiYlh/exec";
 
-const TICKET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyNuQ-uggjAIIA6wxmxO5TzPDMVTRPFbzB6b1cvBbTptHlVfMUfdfNRl_u9w3VPiYlh/exec";
+/* ── STATE ──────────────────────────── */
+let wirelessLoaded=false, wirelessLoading=null;
+let manualCache=[], lastSelf=[], lastLog=[], lastTickets=[];
+let logFilter="all", ticketFilter="all";
 
-const $ = (q)=>document.querySelector(q);
-const $$ = (q)=>Array.from(document.querySelectorAll(q));
+/* ── HELPERS ────────────────────────── */
+const $=q=>document.querySelector(q);
+const $$=q=>Array.from(document.querySelectorAll(q));
 
-let wirelessLoaded = false;
-let wirelessLoading = null;
-
-let manualRowsCached = [];
-let lastSelf = [];
-let lastLog  = [];
-let logFilter = "all";
-
-let lastTickets = [];
-let ticketFilter = "all";
-
-function tabFromHash(){
-  const h = (location.hash || "#home").replace("#","");
-  return (["home","self","ticket","log"].includes(h)) ? h : "home";
-}
-function setTabUI(tab){
-  $$(".nav a").forEach(a=>a.classList.toggle("active", a.dataset.tab===tab));
-  $$(".section").forEach(s=>s.classList.remove("active"));
-  const sec = $("#tab-"+tab);
-  if(sec) sec.classList.add("active");
-}
-
-function isLikelyUrl(s){
-  const t = String(s||"").trim();
-  if(!t) return false;
-  if(/^https?:\/\//i.test(t)) return true;
-  if(t.includes("docs.google.com") || t.includes("drive.google.com")) return true;
-  return false;
-}
-function escapeHtml(str){
-  return String(str ?? "")
+function esc(s){
+  return String(s??"")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
     .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
-function toast(msg){
-  const el = $("#ticketToast");
-  if(el) el.textContent = msg || "";
+function isUrl(s){
+  const t=String(s||"").trim();
+  if(!t)return false;
+  if(/^https?:\/\//i.test(t))return true;
+  if(t.includes("docs.google.com")||t.includes("drive.google.com"))return true;
+  return false;
 }
-function normType(s){ return String(s||"").trim().replace(/\s+/g,""); }
+function nt(s){return String(s||"").trim().replace(/\s+/g,"")}
+function tabFromHash(){
+  const h=(location.hash||"#home").replace("#","");
+  return ["home","self","ticket","log"].includes(h)?h:"home";
+}
 
-function loadSheetTextRows(gid, tq){
-  return new Promise((resolve, reject) => {
-    const cbName = "__gviz_cb_" + Math.random().toString(36).slice(2) + Date.now();
-    const query = encodeURIComponent(tq || "select A,B,C,D,E limit 2000");
-    const tqx = encodeURIComponent(`out:json;responseHandler:${cbName}`);
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${query}&tqx=${tqx}&_=${Date.now()}`;
+/* ── TOAST ──────────────────────────── */
+function toast(msg,type="info",dur=2600){
+  const el=document.createElement("div");
+  el.className=`toast ${type==="success"?"ok":type==="error"?"er":type==="loading"?"ld":""}`;
+  el.innerHTML=`<span>${esc(msg)}</span>${type!=="loading"?`<div class="toast-bar"></div>`:""}`;
+  $("#toastWrap").appendChild(el);
+  if(type!=="loading"){
+    setTimeout(()=>{
+      el.style.cssText="opacity:0;transition:opacity .2s";
+      setTimeout(()=>el.remove(),200);
+    },dur);
+  }
+  return el;
+}
+function clearLoadingToasts(){$$(".toast.ld").forEach(e=>e.remove())}
 
-    const script = document.createElement("script");
-    const timer = setTimeout(() => { cleanup(); reject(new Error("timeout")); }, 12000);
+/* ── SKELETON ───────────────────────── */
+function skeleton(el,n=3){
+  el.innerHTML=Array(n).fill(0).map(()=>`
+    <div class="sk-item">
+      <div class="sk w80"></div><div class="sk w60"></div><div class="sk w40"></div>
+    </div>`).join("");
+}
 
-    function cleanup(){
-      clearTimeout(timer);
-      try{ delete window[cbName]; }catch(e){}
-      if(script.parentNode) script.parentNode.removeChild(script);
-    }
+/* ── HIGHLIGHT ──────────────────────── */
+function hl(text,q){
+  const s=esc(text);
+  if(!q)return s;
+  const r=esc(q).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  if(!r)return s;
+  return s.replace(new RegExp(r,"gi"),m=>`<mark>${m}</mark>`);
+}
 
-    window[cbName] = (resp) => {
+/* ── COPY ───────────────────────────── */
+function copyText(t){
+  /* clipboard API (HTTPS/localhost) 우선, 실패 시 execCommand fallback */
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(t)
+      .then(()=>toast("복사됐습니다","success",1400))
+      .catch(()=>fallbackCopy(t));
+  }else{
+    fallbackCopy(t);
+  }
+}
+function fallbackCopy(t){
+  const el=document.createElement("textarea");
+  el.value=t;
+  el.style.cssText="position:fixed;top:-9999px;left:-9999px;opacity:0";
+  document.body.appendChild(el);
+  el.focus();el.select();
+  try{
+    document.execCommand("copy");
+    toast("복사됐습니다","success",1400);
+  }catch(e){
+    toast("복사 실패","error");
+  }
+  document.body.removeChild(el);
+}
+
+/* ── RELOAD STATE ───────────────────── */
+function spinning(btn,on){
+  if(!btn)return;
+  btn.classList.toggle("spin",on);
+  btn.disabled=on;
+}
+
+/* ── SHEET LOADER ───────────────────── */
+function loadSheet(gid,tq){
+  return new Promise((res,rej)=>{
+    const cb="__gc_"+Math.random().toString(36).slice(2)+Date.now();
+    const q=encodeURIComponent(tq||"select A,B,C,D,E limit 2000");
+    const tx=encodeURIComponent(`out:json;responseHandler:${cb}`);
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tq=${q}&tqx=${tx}&_=${Date.now()}`;
+    const s=document.createElement("script");
+    const t=setTimeout(()=>{cleanup();rej(new Error("timeout"))},12000);
+    function cleanup(){clearTimeout(t);try{delete window[cb]}catch(e){}s.parentNode&&s.parentNode.removeChild(s)}
+    window[cb]=r=>{
       try{
         cleanup();
-        if(!resp || resp.status !== "ok"){
-          throw new Error(resp?.errors?.[0]?.message || "load failed");
-        }
-        const rows = (resp.table.rows||[]).map(r => (r.c||[]).map(cell => {
-          if(!cell) return "";
-          const f = (cell.f != null) ? String(cell.f).trim() : "";
-          const v = (cell.v != null) ? String(cell.v).trim() : "";
-          return f || v;
-        }));
-        resolve(rows);
-      }catch(e){ reject(e); }
+        if(!r||r.status!=="ok")throw new Error(r?.errors?.[0]?.message||"fail");
+        res((r.table.rows||[]).map(row=>(row.c||[]).map(c=>{
+          if(!c)return"";
+          const f=c.f!=null?String(c.f).trim():"";
+          const v=c.v!=null?String(c.v).trim():"";
+          return f||v;
+        })));
+      }catch(e){rej(e)}
     };
-
-    script.src = url;
-    script.async = true;
-    script.onerror = () => { cleanup(); reject(new Error("network")); };
-    document.head.appendChild(script);
+    s.src=url;s.async=true;
+    s.onerror=()=>{cleanup();rej(new Error("network"))};
+    document.head.appendChild(s);
   });
 }
 
-/** HOME/SELF */
-function isHeaderRowMS(r){
-  const a = normType(r[0]), b = normType(r[1]), c = normType(r[2]);
-  if((a==="구분"||a==="분류") && b==="제목" && c==="내용") return true;
-  if(b==="제목" && c==="내용") return true;
-  if(a==="제목" && b==="내용") return true;
+/* ── HOME / SELF ────────────────────── */
+function isHdrMS(r){
+  const a=nt(r[0]),b=nt(r[1]),c=nt(r[2]);
+  if((a==="구분"||a==="분류")&&b==="제목"&&c==="내용")return true;
+  if(b==="제목"&&c==="내용")return true;
+  if(a==="제목"&&b==="내용")return true;
   return false;
 }
-function compactRowsMS(rows){
-  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
-  while(data.length && isHeaderRowMS(data[0])) data.shift();
-  return data;
+function compactMS(rows){
+  const d=(rows||[]).filter(r=>(r||[]).some(x=>String(x).trim()!==""));
+  while(d.length&&isHdrMS(d[0]))d.shift();
+  return d;
 }
-function toMSObjects(rows){
-  const data = compactRowsMS(rows);
-  return data.map((r,idx)=>({
-    rowNo: idx+2,
-    type: normType(r[0]),
-    title: String(r[1]||"").trim(),
-    content: String(r[2]||"").trim(),
-    link: String(r[3]||"").trim(),
-    tags: String(r[4]||"").trim()
-  })).filter(x => x.type || x.title || x.content || x.link || x.tags);
+function toObjs(rows){
+  return compactMS(rows).map((r,i)=>({
+    rowNo:i+2,
+    type:nt(r[0]),
+    title:String(r[1]||"").trim(),
+    content:String(r[2]||"").trim(),
+    link:String(r[3]||"").trim(),
+    tags:String(r[4]||"").trim()
+  })).filter(x=>x.type||x.title||x.content||x.link||x.tags);
 }
-function labelForLink(item, n){ return item.title ? item.title : `메뉴얼 ${n}`; }
-function labelForSelf(item, n){
-  if(item.title) return item.title;
-  const first = (item.content||"").split("\n").map(x=>x.trim()).filter(Boolean)[0];
-  if(first) return first.length > 28 ? first.slice(0,28)+"…" : first;
-  if(isLikelyUrl(item.link)) return "자료";
-  return `자가조치 ${n}`;
+function lForLink(x,n){return x.title?x.title:`메뉴얼 ${n}`}
+function lForSelf(x,n){
+  if(x.title)return x.title;
+  const f=(x.content||"").split("\n").map(s=>s.trim()).filter(Boolean)[0];
+  if(f)return f.length>28?f.slice(0,28)+"…":f;
+  if(isUrl(x.link))return"자료";
+  return`자가조치 ${n}`;
 }
-function renderManualButtons(items){
-  const wrap = $("#manualButtons");
-  wrap.innerHTML = "";
+
+function renderManual(items){
+  const w=$("#manualButtons");w.innerHTML="";
   if(!items.length){
-    wrap.innerHTML = `<div class="empty">등록된 항목이 없습니다.</div>`;
+    w.innerHTML=`<div class="empty" style="grid-column:1/-1"><span class="empty-ic">📋</span><p>등록된 항목이 없습니다.</p></div>`;
     return;
   }
   items.forEach(x=>{
-    const a = document.createElement("a");
-    a.className = "btn";
-    a.textContent = x.title || "메뉴얼";
-    if(isLikelyUrl(x.link)){
-      a.href = x.link.startsWith("http") ? x.link : ("https://" + x.link);
-      a.target = "_blank";
-      a.rel = "noopener";
+    const a=document.createElement("a");
+    a.className="btn-manual";
+    if(isUrl(x.link)){
+      a.href=x.link.startsWith("http")?x.link:"https://"+x.link;
+      a.target="_blank";a.rel="noopener";
+      a.innerHTML=`↗ ${esc(x.title||"메뉴얼")}`;
     }else{
       a.classList.add("disabled");
+      a.textContent=x.title||"메뉴얼";
     }
-    wrap.appendChild(a);
+    w.appendChild(a);
   });
 }
-function renderSelf(items){
-  const list = $("#selfList");
-  const q = $("#q").value.trim().toLowerCase();
-  const filtered = items.filter(x=>{
-    if(!q) return true;
-    const blob = `${x.title} ${x.content} ${x.tags} ${x.link}`.toLowerCase();
-    return blob.includes(q);
-  });
 
-  list.innerHTML = "";
+function renderSelf(items){
+  const list=$("#selfList");
+  const q=$("#q").value.trim().toLowerCase();
+  const filtered=items.filter(x=>!q||`${x.title} ${x.content} ${x.tags} ${x.link}`.toLowerCase().includes(q));
+  list.innerHTML="";
   if(!filtered.length){
-    list.innerHTML = `<div class="empty">검색 결과가 없습니다.</div>`;
+    list.innerHTML=`<div class="empty"><span class="empty-ic">🔍</span><p>검색 결과가 없습니다.</p></div>`;
     return;
   }
+  filtered.forEach((x,i)=>{
+    const tags=(x.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
+    const tagsHtml=tags.length?`<div class="pill-row">${tags.map(t=>`<span class="pill">#${esc(t)}</span>`).join("")}</div>`:"";
+    const linkHtml=isUrl(x.link)?`<div class="acc-meta"><a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크 열기 ↗</a></div>`:"";
+    const bodyHtml=String(x.content||"").trim()?`<div class="acc-content">${hl(x.content,q)}</div>`:"";
+    const prev=(x.content||"").trim().split("\n")[0]||"";
 
-  filtered.forEach(x=>{
-    const d = document.createElement("details");
-    const tagArr = (x.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
-
-    const tagsHtml = tagArr.length
-      ? `<div class="pillchip">${tagArr.map(t=>`<span>#${escapeHtml(t)}</span>`).join("")}</div>`
-      : "";
-
-    const linkHtml = isLikelyUrl(x.link)
-      ? `<div class="meta">자료: <a href="${x.link.startsWith("http")?x.link:"https://"+x.link}" target="_blank" rel="noopener">링크</a></div>`
-      : "";
-
-    const contentHtml = String(x.content||"").trim()
-      ? `<div class="content body">${escapeHtml(x.content)}</div>`
-      : "";
-
-    d.innerHTML = `
-      <summary>${escapeHtml(x.title)}</summary>
-      ${tagsHtml}
-      ${contentHtml}
-      ${linkHtml}
-    `;
-    list.appendChild(d);
+    const el=document.createElement("div");
+    el.className="acc";el.style.animationDelay=`${i*38}ms`;
+    el.innerHTML=`
+      <div class="acc-hd">
+        <div class="acc-hd-left">
+          <div class="acc-title">${hl(x.title,q)}</div>
+          ${prev?`<div class="acc-prev">${esc(prev)}</div>`:""}
+          ${tagsHtml}
+        </div>
+        <span class="acc-chev">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-inner">${bodyHtml}${linkHtml}</div>
+      </div>`;
+    el.querySelector(".acc-hd").addEventListener("click",()=>el.classList.toggle("open"));
+    list.appendChild(el);
   });
 }
-async function ensureWirelessLoaded(force=false){
-  if(wirelessLoaded && !force) return;
-  if(wirelessLoading && !force) return wirelessLoading;
 
-  wirelessLoading = (async ()=>{
-    const tab = tabFromHash();
-    if(!force && tab !== "home" && tab !== "self") return;
-
+async function ensureWireless(force=false){
+  if(wirelessLoaded&&!force)return;
+  if(wirelessLoading&&!force)return wirelessLoading;
+  const btn=$("#btnReloadSelf");spinning(btn,true);
+  wirelessLoading=(async()=>{
     try{
-      const rawRows = await loadSheetTextRows(WIRELESS_GID, "select A,B,C,D,E limit 2000");
-      const rows = toMSObjects(rawRows);
-
-      const manualByType = rows.filter(x => x.type === "메뉴얼");
-      const selfByType   = rows.filter(x => x.type === "자가조치" && (x.title || x.content || isLikelyUrl(x.link)));
-
-      const manualAuto = rows.filter(x => !x.type && isLikelyUrl(x.link));
-      const selfAuto   = rows.filter(x => !x.type && (String(x.content||"").trim() !== "" || isLikelyUrl(x.link)));
-
-      const manual = (manualByType.length ? manualByType : manualAuto)
-        .map((x,i)=>({ ...x, title: labelForLink(x, i+1) }));
-
-      const self = (selfByType.length ? selfByType : selfAuto)
-        .filter(x => x.title || String(x.content||"").trim() !== "" || isLikelyUrl(x.link))
-        .map((x,i)=>({ ...x, title: labelForSelf(x, i+1) }));
-
-      manualRowsCached = manual;
-      lastSelf = self;
-
-      renderManualButtons(manualRowsCached);
-      if(tabFromHash() === "self") renderSelf(lastSelf);
-
-      wirelessLoaded = true;
+      const raw=await loadSheet(WIRELESS_GID,"select A,B,C,D,E limit 2000");
+      const rows=toObjs(raw);
+      const mByT=rows.filter(x=>x.type==="메뉴얼");
+      const sByT=rows.filter(x=>x.type==="자가조치"&&(x.title||x.content||isUrl(x.link)));
+      const mAuto=rows.filter(x=>!x.type&&isUrl(x.link));
+      const sAuto=rows.filter(x=>!x.type&&(String(x.content||"").trim()||isUrl(x.link)));
+      manualCache=(mByT.length?mByT:mAuto).map((x,i)=>({...x,title:lForLink(x,i+1)}));
+      lastSelf=(sByT.length?sByT:sAuto)
+        .filter(x=>x.title||String(x.content||"").trim()||isUrl(x.link))
+        .map((x,i)=>({...x,title:lForSelf(x,i+1)}));
+      renderManual(manualCache);
+      if(tabFromHash()==="self")renderSelf(lastSelf);
+      wirelessLoaded=true;
     }catch(e){
-      wirelessLoaded = false;
-      renderManualButtons([]);
-      lastSelf = [];
-      if(tabFromHash() === "self") renderSelf(lastSelf);
-    }
+      wirelessLoaded=false;
+      renderManual([]);lastSelf=[];
+      if(tabFromHash()==="self")renderSelf(lastSelf);
+    }finally{spinning(btn,false)}
   })();
-
-  try{ return await wirelessLoading; }
-  finally{ wirelessLoading = null; }
+  try{return await wirelessLoading}finally{wirelessLoading=null}
 }
 
-/** LOG */
-function normStatus(s){
-  const v = String(s||"").trim();
-  if(v==="처리완료" || v==="진행중" || v==="미처리") return v;
-  return v || "미처리";
+/* ── LOG ────────────────────────────── */
+function normSt(s){
+  const v=String(s||"").trim();
+  return["처리완료","진행중","미처리"].includes(v)?v:v||"미처리";
 }
-function statusBadge(status){
-  const st = normStatus(status);
-  if(st==="처리완료") return `<span class="badge done">처리완료</span>`;
-  if(st==="진행중") return `<span class="badge prog">진행중</span>`;
-  return `<span class="badge todo">미처리</span>`;
+function stBadge(s){
+  const st=normSt(s);
+  if(st==="처리완료")return`<span class="badge done">처리완료</span>`;
+  if(st==="진행중")return`<span class="badge prog">진행중</span>`;
+  return`<span class="badge todo">미처리</span>`;
 }
-function parseDT(dateStr, timeStr){
-  const d = String(dateStr||"").trim();
-  const t = String(timeStr||"").trim();
-  if(!d && !t) return 0;
-  const base = d.replace(/\./g,"-").replace(/\//g,"-");
-  const s = (base && t) ? `${base} ${t}` : (base || t);
-  const dt = new Date(s);
-  const ms = dt.getTime();
-  return Number.isFinite(ms) ? ms : 0;
+function parseDT(d,t){
+  const ds=String(d||"").trim(),ts=String(t||"").trim();
+  if(!ds&&!ts)return 0;
+  const b=ds.replace(/\./g,"-").replace(/\//g,"-");
+  const s=b&&ts?`${b} ${ts}`:b||ts;
+  const ms=new Date(s).getTime();
+  return Number.isFinite(ms)?ms:0;
 }
-function compactLogRows(rows){
-  const data = (rows||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
-  while(data.length){
-    const a = normType(data[0][0]), b = normType(data[0][1]), c = normType(data[0][2]);
-    if((a==="일시"||a==="날짜") && b==="시간" && c==="매장명") data.shift();
-    else break;
+function compactLog(rows){
+  const d=(rows||[]).filter(r=>(r||[]).some(x=>String(x).trim()!==""));
+  while(d.length){
+    const a=nt(d[0][0]),b=nt(d[0][1]),c=nt(d[0][2]);
+    if((a==="일시"||a==="날짜")&&b==="시간"&&c==="매장명")d.shift();else break;
   }
-  return data;
+  return d;
 }
-async function loadLogFromSheet(){
-  const raw = await loadSheetTextRows(LOG_GID, "select A,B,C,D,E limit 3000");
-  const rows = compactLogRows(raw);
-
-  const data = rows.map(r=>({
-    date:  String(r[0]||"").trim(),
-    time:  String(r[1]||"").trim(),
-    store: String(r[2]||"").trim(),
-    memo:  String(r[3]||"").trim(),
-    status: normStatus(r[4])
-  })).filter(x => x.date || x.time || x.store || x.memo);
-
-  data.sort((a,b)=> parseDT(b.date,b.time) - parseDT(a.date,a.time));
+async function loadLog(){
+  const raw=await loadSheet(LOG_GID,"select A,B,C,D,E limit 3000");
+  const rows=compactLog(raw);
+  const data=rows.map(r=>({
+    date:String(r[0]||"").trim(),time:String(r[1]||"").trim(),
+    store:String(r[2]||"").trim(),memo:String(r[3]||"").trim(),
+    status:normSt(r[4])
+  })).filter(x=>x.date||x.time||x.store||x.memo);
+  data.sort((a,b)=>parseDT(b.date,b.time)-parseDT(a.date,a.time));
   return data;
 }
 function renderLog(items){
-  const list = $("#logList");
-  const q = $("#q").value.trim().toLowerCase();
-
-  const filtered = items.filter(x=>{
-    if(logFilter !== "all" && String(x.status||"").trim() !== logFilter) return false;
-    if(!q) return true;
-    const blob = `${x.date} ${x.time} ${x.store} ${x.memo} ${x.status}`.toLowerCase();
-    return blob.includes(q);
+  const list=$("#logList");
+  const q=$("#q").value.trim().toLowerCase();
+  const f=items.filter(x=>{
+    if(logFilter!=="all"&&String(x.status||"").trim()!==logFilter)return false;
+    return!q||`${x.date} ${x.time} ${x.store} ${x.memo} ${x.status}`.toLowerCase().includes(q);
   });
-
-  list.innerHTML = "";
-  if(!filtered.length){
-    list.innerHTML = `<div class="empty">표시할 항목이 없습니다.</div>`;
-    return;
-  }
-
-  filtered.forEach(x=>{
-    const d = document.createElement("details");
-    const dtText = [x.date, x.time].filter(Boolean).join(" ");
-    const preview = String(x.memo||"").trim();
-
-    d.innerHTML = `
-      <summary>
-        <div class="logsum">
-          <span class="dt">${escapeHtml(dtText)}</span>
-          <span class="store">${escapeHtml(x.store || "매장명 없음")}</span>
-          ${statusBadge(x.status)}
+  list.innerHTML="";
+  if(!f.length){list.innerHTML=`<div class="empty"><span class="empty-ic">📭</span><p>표시할 항목이 없습니다.</p></div>`;return}
+  f.forEach((x,i)=>{
+    const dt=[x.date,x.time].filter(Boolean).join(" ");
+    const prev=(x.memo||"").trim().split("\n")[0]||"";
+    const el=document.createElement("div");
+    el.className="acc";el.style.animationDelay=`${i*35}ms`;
+    el.innerHTML=`
+      <div class="acc-hd">
+        <div class="acc-hd-left">
+          <div class="log-sum">
+            <span class="log-dt">${esc(dt)}</span>
+            <span class="log-store">${hl(x.store||"매장명 없음",q)}</span>
+            ${stBadge(x.status)}
+          </div>
+          ${prev?`<div class="acc-prev">${hl(prev,q)}</div>`:""}
         </div>
-        ${preview ? `<div class="preview">${escapeHtml(preview)}</div>` : ``}
-      </summary>
-      <div class="content body">${escapeHtml(x.memo || "")}</div>
-      <div class="meta">${escapeHtml(normStatus(x.status))}</div>
-    `;
-    list.appendChild(d);
+        <span class="acc-chev">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="acc-content">${hl(x.memo||"",q)}</div>
+          <div class="acc-meta">${esc(normSt(x.status))}</div>
+        </div>
+      </div>`;
+    el.querySelector(".acc-hd").addEventListener("click",()=>el.classList.toggle("open"));
+    list.appendChild(el);
   });
 }
 async function reloadLog(){
-  if(tabFromHash()==="log") $("#logList").innerHTML = `<div class="empty">불러오는 중…</div>`;
-  try{
-    lastLog = await loadLogFromSheet();
-    renderLog(lastLog);
-  }catch(e){
-    lastLog = [];
-    renderLog(lastLog);
-  }
+  const btn=$("#btnReloadLog");spinning(btn,true);
+  skeleton($("#logList"),4);
+  try{lastLog=await loadLog();renderLog(lastLog)}
+  catch(e){lastLog=[];renderLog(lastLog);toast("불러오기 실패","error")}
+  finally{spinning(btn,false)}
 }
 
-/** TICKETS */
-function normTicketStatus(s){
-  const v = String(s||"").trim();
-  if(["미처리","처리중","처리완료","이관요청"].includes(v)) return v;
-  return v || "미처리";
+/* ── TICKETS ────────────────────────── */
+function normTSt(s){
+  const v=String(s||"").trim();
+  return["미처리","처리중","처리완료","이관요청"].includes(v)?v:v||"미처리";
 }
-function ticketBadge(status){
-  const st = normTicketStatus(status);
-  if(st==="처리완료") return `<span class="badge done">처리완료</span>`;
-  if(st==="처리중") return `<span class="badge prog">처리중</span>`;
-  if(st==="이관요청") return `<span class="badge prog">이관요청</span>`;
-  return `<span class="badge todo">미처리</span>`;
+function tBadge(s){
+  const st=normTSt(s);
+  if(st==="처리완료")return`<span class="badge done">처리완료</span>`;
+  if(st==="처리중")return`<span class="badge prog">처리중</span>`;
+  if(st==="이관요청")return`<span class="badge xfer">이관요청</span>`;
+  return`<span class="badge todo">미처리</span>`;
 }
-function isHeaderRowTicket(r){
-  const a = String(r[0]||"").trim().toLowerCase();
-  return a === "id";
+function isHdrTicket(r){return String(r[0]||"").trim().toLowerCase()==="id"}
+async function loadTickets(){
+  const raw=await loadSheet(TICKET_GID,"select A,B,C,D,E,F,G,H,I,J limit 3000");
+  let rows=(raw||[]).filter(r=>(r||[]).some(x=>String(x).trim()!==""));
+  while(rows.length&&isHdrTicket(rows[0]))rows.shift();
+  const data=rows.map(r=>({
+    id:String(r[0]||"").trim(),
+    createdAt:String(r[1]||"").trim(),
+    updatedAt:String(r[2]||"").trim(),
+    store:String(r[3]||"").trim(),
+    contact:String(r[4]||"").trim(),
+    symptomRoom:String(r[5]||"").trim(),
+    errorDetail:String(r[6]||"").trim(),
+    history:String(r[7]||"").trim(),
+    assigneeTel:String(r[8]||"").trim(),
+    status:normTSt(r[9])
+  })).filter(x=>x.store||x.errorDetail||x.history||x.assigneeTel);
+  data.reverse();return data;
 }
-async function loadTicketsFromSheet(){
-  const raw = await loadSheetTextRows(TICKET_GID, "select A,B,C,D,E,F,G,H,I,J limit 3000");
-  let rows = (raw||[]).filter(r => (r||[]).some(x => String(x).trim() !== ""));
-
-  while(rows.length && isHeaderRowTicket(rows[0])) rows.shift();
-
-  const data = rows.map(r=>({
-    id: String(r[0]||"").trim(),
-    createdAt: String(r[1]||"").trim(),
-    updatedAt: String(r[2]||"").trim(),
-    store: String(r[3]||"").trim(),
-    contact: String(r[4]||"").trim(),
-    symptomRoom: String(r[5]||"").trim(),
-    errorDetail: String(r[6]||"").trim(),
-    history: String(r[7]||"").trim(),
-    assigneeTel: String(r[8]||"").trim(),
-    status: normTicketStatus(r[9])
-  })).filter(x => x.store || x.errorDetail || x.history || x.assigneeTel);
-
-  data.reverse();
-  return data;
+function updateBadge(items){
+  const n=items.filter(x=>x.status!=="처리완료").length;
+  const b=$("#navBadge");
+  if(!b)return;
+  if(n>0){b.textContent=n>99?"99+":String(n);b.classList.add("show")}
+  else b.classList.remove("show");
 }
 function renderTickets(items){
-  const list = $("#ticketList");
-  const q = $("#q").value.trim().toLowerCase();
-
-  const filtered = items.filter(x=>{
-    if(ticketFilter !== "all" && x.status !== ticketFilter) return false;
-    if(!q) return true;
-    const blob = `${x.createdAt} ${x.store} ${x.contact} ${x.symptomRoom} ${x.errorDetail} ${x.history} ${x.assigneeTel} ${x.status}`.toLowerCase();
-    return blob.includes(q);
+  const list=$("#ticketList");
+  const q=$("#q").value.trim().toLowerCase();
+  const f=items.filter(x=>{
+    if(ticketFilter!=="all"&&x.status!==ticketFilter)return false;
+    return!q||`${x.createdAt} ${x.store} ${x.contact} ${x.symptomRoom} ${x.errorDetail} ${x.history} ${x.assigneeTel} ${x.status}`.toLowerCase().includes(q);
   });
-
-  list.innerHTML = "";
-  if(!filtered.length){
-    list.innerHTML = `<div class="empty">표시할 항목이 없습니다.</div>`;
-    return;
-  }
-
-  filtered.forEach(x=>{
-    const d = document.createElement("details");
-    const head = `${x.store || "매장명 없음"}${x.symptomRoom ? " · " + x.symptomRoom : ""}`;
-    const preview = String(x.errorDetail||"").trim();
-
-    d.innerHTML = `
-      <summary>
-        <div class="logsum">
-          <span class="dt">${escapeHtml(x.createdAt || "")}</span>
-          <span class="store">${escapeHtml(head)}</span>
-          ${ticketBadge(x.status)}
+  list.innerHTML="";
+  if(!f.length){list.innerHTML=`<div class="empty"><span class="empty-ic">📭</span><p>표시할 항목이 없습니다.</p></div>`;return}
+  f.forEach((x,i)=>{
+    const head=`${x.store||"매장명 없음"}${x.symptomRoom?" · "+x.symptomRoom:""}`;
+    const prev=(x.errorDetail||"").trim().split("\n")[0]||"";
+    const el=document.createElement("div");
+    el.className="acc";el.style.animationDelay=`${i*35}ms`;
+    el.innerHTML=`
+      <div class="acc-hd">
+        <div class="acc-hd-left">
+          <div class="log-sum">
+            <span class="log-dt">${esc(x.createdAt||"")}</span>
+            <span class="log-store">${hl(head,q)}</span>
+            ${tBadge(x.status)}
+          </div>
+          ${prev?`<div class="acc-prev">${hl(prev,q)}</div>`:""}
         </div>
-        ${preview ? `<div class="preview">${escapeHtml(preview)}</div>` : ``}
-      </summary>
-
-      ${x.contact ? `<div class="meta">매장 연락처: ${escapeHtml(x.contact)}</div>` : ``}
-      ${x.symptomRoom ? `<div class="meta">증상룸: ${escapeHtml(x.symptomRoom)}</div>` : ``}
-
-      ${x.errorDetail ? `<div class="content"><b>오류 상세내용</b>\n${escapeHtml(x.errorDetail)}</div>` : ``}
-      ${x.history ? `<div class="content"><b>대양 처리이력</b>\n${escapeHtml(x.history)}</div>` : ``}
-      ${x.assigneeTel ? `<div class="meta">지앤서비스 담당자 연락처: ${escapeHtml(x.assigneeTel)}</div>` : ``}
-
-      <div class="meta">상태: ${escapeHtml(normTicketStatus(x.status))}</div>
-    `;
-    list.appendChild(d);
+        <span class="acc-chev">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-inner">
+          ${x.contact?`<div class="acc-meta">매장 연락처: ${hl(x.contact,q)}<button class="copy" onclick="copyText(${JSON.stringify(x.contact)})">복사</button></div>`:""}
+          ${x.symptomRoom?`<div class="acc-meta">증상룸: ${hl(x.symptomRoom,q)}</div>`:""}
+          ${x.errorDetail?`<div class="acc-content"><b>오류 상세내용</b>\n${hl(x.errorDetail,q)}</div>`:""}
+          ${x.history?`<div class="acc-content"><b>대양 처리이력</b>\n${hl(x.history,q)}</div>`:""}
+          ${x.assigneeTel?`<div class="acc-meta">지앤서비스 담당자: ${hl(x.assigneeTel,q)}<button class="copy" onclick="copyText(${JSON.stringify(x.assigneeTel)})">복사</button></div>`:""}
+          <div class="acc-meta" style="margin-top:6px">상태: ${esc(normTSt(x.status))}</div>
+        </div>
+      </div>`;
+    el.querySelector(".acc-hd").addEventListener("click",()=>el.classList.toggle("open"));
+    list.appendChild(el);
   });
 }
 async function reloadTickets(){
-  if(tabFromHash()==="ticket") $("#ticketList").innerHTML = `<div class="empty">불러오는 중…</div>`;
+  const btn=$("#btnReloadTicket");spinning(btn,true);
+  skeleton($("#ticketList"),4);
   try{
-    lastTickets = await loadTicketsFromSheet();
+    lastTickets=await loadTickets();
     renderTickets(lastTickets);
-    toast("");
-  }catch(e){
-    lastTickets = [];
-    renderTickets(lastTickets);
-    toast("불러오기 실패");
-  }
+    updateBadge(lastTickets);
+  }catch(e){lastTickets=[];renderTickets(lastTickets);toast("불러오기 실패","error")}
+  finally{spinning(btn,false)}
 }
 async function submitTicket(){
-  const store = ($("#t_store")?.value || "").trim();
-  const contact = ($("#t_contact")?.value || "").trim();
-  const symptomRoom = ($("#t_symptomRoom")?.value || "").trim();
-  const errorDetail = ($("#t_errorDetail")?.value || "").trim();
-  const history = ($("#t_history")?.value || "").trim();
-  const assigneeTel = ($("#t_assigneeTel")?.value || "").trim();
+  const store=($("#t_store")?.value||"").trim();
+  const contact=($("#t_contact")?.value||"").trim();
+  const symptomRoom=($("#t_symptomRoom")?.value||"").trim();
+  const errorDetail=($("#t_errorDetail")?.value||"").trim();
+  const history=($("#t_history")?.value||"").trim();
+  const assigneeTel=($("#t_assigneeTel")?.value||"").trim();
+  let err=false;
+  if(!store){$("#f_store").classList.add("err");err=true}else $("#f_store").classList.remove("err");
+  if(!errorDetail){$("#f_err").classList.add("err");err=true}else $("#f_err").classList.remove("err");
+  if(err){toast("필수 항목을 입력해주세요","error");return}
+  const lt=toast("저장 중…","loading");
+  const body=new URLSearchParams({action:"create",store,contact,symptomRoom,errorDetail,history,assigneeTel});
+  try{
+    await fetch(TICKET_EP,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body});
+    lt.remove();toast("등록 완료 ✅","success");
+    ["t_symptomRoom","t_errorDetail","t_history","t_assigneeTel"].forEach(id=>{const e=$(`#${id}`);if(e)e.value=""});
+    updateCC();
+    setTimeout(reloadTickets,900);
+  }catch(e){lt.remove();toast("저장 실패","error")}
+}
 
-  if(!store || !errorDetail){
-    toast("필수값 확인");
+/* ── CHAR COUNT ─────────────────────── */
+function updateCC(){
+  const e1=$("#t_errorDetail"),e2=$("#t_history");
+  if(e1&&$("#cc1"))$("#cc1").textContent=`${e1.value.length}/${e1.maxLength||1000}`;
+  if(e2&&$("#cc2"))$("#cc2").textContent=`${e2.value.length}/${e2.maxLength||1000}`;
+}
+$("#t_errorDetail").addEventListener("input",updateCC);
+$("#t_history").addEventListener("input",updateCC);
+
+/* ── ROUTE ──────────────────────────── */
+function setTabUI(tab){
+  $$(".nav a,.bnav-a").forEach(a=>a.classList.toggle("active",a.dataset.tab===tab));
+  $$(".section").forEach(s=>s.classList.remove("active"));
+  const s=$(`#tab-${tab}`);if(s)s.classList.add("active");
+}
+function route(){
+  const tab=tabFromHash();
+  if((tab==="ticket"&&!pwUnlocked.ticket)||(tab==="log"&&!pwUnlocked.log)){
+    pwOpen(tab);
     return;
   }
-
-  const body = new URLSearchParams({
-    action: "create",
-    store,
-    contact,
-    symptomRoom,
-    errorDetail,
-    history,
-    assigneeTel
-  });
-
-  toast("저장 중");
-
-  await fetch(TICKET_ENDPOINT, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body
-  });
-
-  toast("저장됨");
-  $("#t_symptomRoom").value = "";
-  $("#t_errorDetail").value = "";
-  $("#t_history").value = "";
-  $("#t_assigneeTel").value = "";
-
-  setTimeout(reloadTickets, 900);
-}
-
-/** ROUTE */
-function route(){
-  const tab = tabFromHash();
   setTabUI(tab);
-
-  if(tab==="home") ensureWirelessLoaded(false);
-  if(tab==="self"){ ensureWirelessLoaded(false); renderSelf(lastSelf); }
-  if(tab==="ticket") reloadTickets();
-  if(tab==="log") reloadLog();
+  if(tab==="home")ensureWireless(false);
+  if(tab==="self"){ensureWireless(false);renderSelf(lastSelf)}
+  if(tab==="ticket")reloadTickets();
+  if(tab==="log")reloadLog();
 }
-window.addEventListener("hashchange", route);
+window.addEventListener("hashchange",route);
 
-$("#q").addEventListener("input", ()=>{
-  const tab = tabFromHash();
-  if(tab==="self") renderSelf(lastSelf);
-  if(tab==="log")  renderLog(lastLog);
-  if(tab==="ticket") renderTickets(lastTickets);
+/* ── SEARCH ─────────────────────────── */
+$("#q").addEventListener("input",()=>{
+  const tab=tabFromHash();
+  if(tab==="self")renderSelf(lastSelf);
+  if(tab==="log")renderLog(lastLog);
+  if(tab==="ticket")renderTickets(lastTickets);
 });
 
-$("#btnReloadSelf").addEventListener("click", ()=> ensureWirelessLoaded(true));
-$("#btnReloadLog").addEventListener("click", reloadLog);
-$("#btnReloadTicket").addEventListener("click", reloadTickets);
-$("#btnSubmitTicket").addEventListener("click", submitTicket);
-$("#btnClearTicket").addEventListener("click", ()=>{
-  $("#t_store").value = "";
-  $("#t_contact").value = "";
-  $("#t_symptomRoom").value = "";
-  $("#t_errorDetail").value = "";
-  $("#t_history").value = "";
-  $("#t_assigneeTel").value = "";
-  toast("");
+/* ── BUTTONS ────────────────────────── */
+$("#btnReloadSelf").addEventListener("click",()=>ensureWireless(true));
+$("#btnReloadLog").addEventListener("click",reloadLog);
+$("#btnReloadTicket").addEventListener("click",reloadTickets);
+$("#btnSubmit").addEventListener("click",submitTicket);
+$("#btnClear").addEventListener("click",()=>{
+  $$(".field.err").forEach(f=>f.classList.remove("err"));
+  ["t_store","t_contact","t_symptomRoom","t_errorDetail","t_history","t_assigneeTel"]
+    .forEach(id=>{const e=$(`#${id}`);if(e)e.value=""});
+  updateCC();
 });
 
-(function initTicketFilters(){
-  const wrap = $("#ticketFilters");
-  wrap.addEventListener("click", (ev)=>{
-    const btn = ev.target.closest(".fchip");
-    if(!btn) return;
-    ticketFilter = btn.dataset.f || "all";
-    $$("#ticketFilters .fchip").forEach(x=>x.classList.toggle("active", x.dataset.f === ticketFilter));
-    renderTickets(lastTickets);
-  });
-})();
-(function initLogFilters(){
-  const wrap = $("#logFilters");
-  wrap.addEventListener("click", (ev)=>{
-    const btn = ev.target.closest(".fchip");
-    if(!btn) return;
-    logFilter = btn.dataset.f || "all";
-    $$("#logFilters .fchip").forEach(x=>x.classList.toggle("active", x.dataset.f === logFilter));
-    renderLog(lastLog);
-  });
-})();
+/* ── FILTERS ────────────────────────── */
+$("#ticketFilters").addEventListener("click",ev=>{
+  const b=ev.target.closest(".fchip");if(!b)return;
+  ticketFilter=b.dataset.f||"all";
+  $$("#ticketFilters .fchip").forEach(x=>x.classList.toggle("active",x.dataset.f===ticketFilter));
+  renderTickets(lastTickets);
+});
+$("#logFilters").addEventListener("click",ev=>{
+  const b=ev.target.closest(".fchip");if(!b)return;
+  logFilter=b.dataset.f||"all";
+  $$("#logFilters .fchip").forEach(x=>x.classList.toggle("active",x.dataset.f===logFilter));
+  renderLog(lastLog);
+});
 
+/* ── PASSWORD ───────────────────────── */
+const PW="8928";
+let pwInput="";
+let pwUnlocked={ticket:false,log:false};
+let pwPendingTab=null;
+
+function pwUpdateDots(){
+  for(let i=0;i<4;i++){
+    const d=$(`#pd${i}`);
+    d.classList.remove("err");
+    d.classList.toggle("filled",i<pwInput.length);
+  }
+}
+function pwShakeErr(){
+  for(let i=0;i<4;i++){
+    const d=$(`#pd${i}`);
+    d.classList.remove("filled","err");
+    void d.offsetWidth;
+    d.classList.add("err");
+  }
+  pwInput="";
+  setTimeout(()=>{
+    for(let i=0;i<4;i++)$(`#pd${i}`).classList.remove("err");
+  },400);
+}
+function pwOpen(targetTab){
+  pwInput="";pwPendingTab=targetTab;
+  const titles={ticket:"🔒 AS 접수",log:"🔒 대양 자체접수"};
+  const titleEl=$("#pwOverlay .pw-title");
+  if(titleEl)titleEl.textContent=titles[targetTab]||"🔒 잠금";
+  pwUpdateDots();
+  $("#pwOverlay").style.display="flex";
+}
+function pwClose(){
+  pwInput="";
+  $("#pwOverlay").style.display="none";
+  pwPendingTab=null;
+}
+function pwConfirm(){
+  if(pwInput===PW){
+    pwUnlocked[pwPendingTab]=true;
+    const tab=pwPendingTab;
+    pwClose();
+    setTabUI(tab);
+    $(`#tab-${tab}`).classList.add("active");
+    location.hash=`#${tab}`;
+    if(tab==="ticket")reloadTickets();
+    if(tab==="log")reloadLog();
+  }else{
+    pwShakeErr();
+  }
+}
+
+document.getElementById("pwOverlay").addEventListener("click",ev=>{
+  const k=ev.target.closest(".pw-key");
+  if(k){
+    const v=k.dataset.k;
+    if(v==="del"){
+      if(pwInput.length>0)pwInput=pwInput.slice(0,-1);
+    }else{
+      if(pwInput.length<4)pwInput+=v;
+    }
+    pwUpdateDots();
+    if(pwInput.length===4)setTimeout(pwConfirm,120);
+  }
+});
+document.getElementById("pwCancel").addEventListener("click",()=>{
+  pwClose();
+  location.hash="#home";
+  route();
+});
+
+/* ── INIT ───────────────────────────── */
 route();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+/* ── EXCEL EXPORT ───────────────────── */
+function exportExcel(){
+  const btn=$("#btnExcel");
+  if(!lastTickets.length){toast("내려받을 데이터가 없습니다","error");return}
+  btn.classList.add("loading");btn.textContent="⏳ 생성 중…";
+
+  setTimeout(()=>{
+    try{
+      const q=$("#q").value.trim().toLowerCase();
+      const filtered=lastTickets.filter(x=>{
+        if(ticketFilter!=="all"&&x.status!==ticketFilter)return false;
+        return!q||`${x.createdAt} ${x.store} ${x.contact} ${x.symptomRoom} ${x.errorDetail} ${x.history} ${x.assigneeTel} ${x.status}`.toLowerCase().includes(q);
+      });
+
+      const header=["접수일시","매장명","매장 연락처","증상룸","오류 상세내용","대양 처리이력","지앤서비스 담당자","상태"];
+      const rows=filtered.map(x=>[
+        x.createdAt,x.store,x.contact,x.symptomRoom,
+        x.errorDetail,x.history,x.assigneeTel,x.status
+      ]);
+
+      const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
+
+      /* 컬럼 너비 */
+      ws["!cols"]=[
+        {wch:18},{wch:18},{wch:16},{wch:12},
+        {wch:40},{wch:40},{wch:16},{wch:10}
+      ];
+
+      /* 헤더 스타일 (xlsx 무료버전 제한적 지원) */
+      const range=XLSX.utils.decode_range(ws["!ref"]);
+      for(let c=range.s.c;c<=range.e.c;c++){
+        const addr=XLSX.utils.encode_cell({r:0,c});
+        if(!ws[addr])continue;
+        ws[addr].s={
+          font:{bold:true,color:{rgb:"FFFFFF"}},
+          fill:{fgColor:{rgb:"2952B3"}},
+          alignment:{horizontal:"center"}
+        };
+      }
+
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,"AS 접수내역");
+
+      /* 파일명: AS접수내역_YYYYMMDD.xlsx */
+      const now=new Date();
+      const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
+      XLSX.writeFile(wb,`AS접수내역_${stamp}.xlsx`);
+
+      toast(`${filtered.length}건 내려받기 완료`,"success");
+    }catch(e){
+      toast("내려받기 실패","error");
+    }finally{
+      btn.classList.remove("loading");
+      btn.innerHTML="⬇ 엑셀 내려받기";
+    }
+  },80);
+}
+
+document.getElementById("btnExcel").addEventListener("click",exportExcel);
+
+/* ── EXCEL LOG ──────────────────────── */
+function exportLogExcel(){
+  const btn=$("#btnExcelLog");
+  if(!lastLog.length){toast("내려받을 데이터가 없습니다","error");return}
+  btn.classList.add("loading");btn.textContent="⏳ 생성 중…";
+
+  setTimeout(()=>{
+    try{
+      const q=$("#q").value.trim().toLowerCase();
+      const filtered=lastLog.filter(x=>{
+        if(logFilter!=="all"&&String(x.status||"").trim()!==logFilter)return false;
+        return!q||`${x.date} ${x.time} ${x.store} ${x.memo} ${x.status}`.toLowerCase().includes(q);
+      });
+
+      const header=["날짜","시간","매장명","메모","상태"];
+      const rows=filtered.map(x=>[x.date,x.time,x.store,x.memo,x.status]);
+
+      const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
+      ws["!cols"]=[{wch:14},{wch:10},{wch:20},{wch:50},{wch:10}];
+
+      const range=XLSX.utils.decode_range(ws["!ref"]);
+      for(let c=range.s.c;c<=range.e.c;c++){
+        const addr=XLSX.utils.encode_cell({r:0,c});
+        if(!ws[addr])continue;
+        ws[addr].s={
+          font:{bold:true,color:{rgb:"FFFFFF"}},
+          fill:{fgColor:{rgb:"2952B3"}},
+          alignment:{horizontal:"center"}
+        };
+      }
+
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,"대양 자체접수");
+
+      const now=new Date();
+      const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}`;
+      XLSX.writeFile(wb,`대양자체접수_${stamp}.xlsx`);
+
+      toast(`${filtered.length}건 내려받기 완료`,"success");
+    }catch(e){
+      toast("내려받기 실패","error");
+    }finally{
+      btn.classList.remove("loading");
+      btn.innerHTML="⬇ 엑셀 내려받기";
+    }
+  },80);
+}
+
+document.getElementById("btnExcelLog").addEventListener("click",exportLogExcel);
 </script>
 </body>
 </html>
