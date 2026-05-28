@@ -1153,10 +1153,6 @@ function setTabUI(tab){
 }
 function route(){
   const tab=tabFromHash();
-  if((tab==="ticket"&&!pwUnlocked.ticket)||(tab==="log"&&!pwUnlocked.log)){
-    pwOpen(tab);
-    return;
-  }
   setTabUI(tab);
   if(tab==="home")ensureWireless(false);
   if(tab==="self"){ensureWireless(false);renderSelf(lastSelf)}
@@ -1177,7 +1173,7 @@ $("#q").addEventListener("input",()=>{
 $("#btnReloadSelf").addEventListener("click",()=>ensureWireless(true));
 $("#btnReloadLog").addEventListener("click",reloadLog);
 $("#btnReloadTicket").addEventListener("click",reloadTickets);
-$("#btnSubmit").addEventListener("click",submitTicket);
+$("#btnSubmit").addEventListener("click",()=>pwOpen(submitTicket));
 $("#btnClear").addEventListener("click",()=>{
   $$(".field.err").forEach(f=>f.classList.remove("err"));
   ["t_store","t_contact","t_symptomRoom","t_errorDetail","t_history","t_assigneeTel"]
@@ -1202,8 +1198,7 @@ $("#logFilters").addEventListener("click",ev=>{
 /* ── PASSWORD ───────────────────────── */
 const PW="8928";
 let pwInput="";
-let pwUnlocked={ticket:false,log:false};
-let pwPendingTab=null;
+let pwCallback=null;
 
 function pwUpdateDots(){
   for(let i=0;i<4;i++){
@@ -1224,29 +1219,23 @@ function pwShakeErr(){
     for(let i=0;i<4;i++)$(`#pd${i}`).classList.remove("err");
   },400);
 }
-function pwOpen(targetTab){
-  pwInput="";pwPendingTab=targetTab;
-  const titles={ticket:"🔒 AS 접수",log:"🔒 대양 자체접수"};
+function pwOpen(callback){
+  pwInput="";pwCallback=callback;
   const titleEl=$("#pwOverlay .pw-title");
-  if(titleEl)titleEl.textContent=titles[targetTab]||"🔒 잠금";
+  if(titleEl)titleEl.textContent="🔒 비밀번호 입력";
   pwUpdateDots();
   $("#pwOverlay").style.display="flex";
 }
 function pwClose(){
   pwInput="";
   $("#pwOverlay").style.display="none";
-  pwPendingTab=null;
+  pwCallback=null;
 }
 function pwConfirm(){
   if(pwInput===PW){
-    pwUnlocked[pwPendingTab]=true;
-    const tab=pwPendingTab;
+    const cb=pwCallback;
     pwClose();
-    setTabUI(tab);
-    $(`#tab-${tab}`).classList.add("active");
-    location.hash=`#${tab}`;
-    if(tab==="ticket")reloadTickets();
-    if(tab==="log")reloadLog();
+    if(cb)cb();
   }else{
     pwShakeErr();
   }
@@ -1265,11 +1254,7 @@ document.getElementById("pwOverlay").addEventListener("click",ev=>{
     if(pwInput.length===4)setTimeout(pwConfirm,120);
   }
 });
-document.getElementById("pwCancel").addEventListener("click",()=>{
-  pwClose();
-  location.hash="#home";
-  route();
-});
+document.getElementById("pwCancel").addEventListener("click",pwClose);
 
 /* ── INIT ───────────────────────────── */
 route();
