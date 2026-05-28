@@ -407,11 +407,13 @@
       background:#0c1528;
       border-top:1px solid rgba(255,255,255,.09);
       z-index:50;
+      padding:0;
       padding-bottom:env(safe-area-inset-bottom,0px);
     }
     .bnav-inner{
       display:flex;
       align-items:stretch;
+      width:100%;
     }
     .bnav-a{
       flex:1;
@@ -658,7 +660,7 @@
 </div>
 
 <!-- BOTTOM NAV (mobile) -->
-<nav class="bnav">
+<nav class="bnav" style="width:100%;left:0;right:0">
   <div class="bnav-inner">
     <a href="#home" data-tab="home" class="bnav-a active"><span class="bnav-ic">🏠</span>홈</a>
     <a href="#self" data-tab="self" class="bnav-a"><span class="bnav-ic">🧯</span>자가조치</a>
