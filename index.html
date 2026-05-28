@@ -1092,11 +1092,11 @@ function renderTickets(items){
       </div>
       <div class="acc-body">
         <div class="acc-inner">
-          ${x.contact?`<div class="acc-meta">매장 연락처: ${hl(x.contact,q)}<button class="copy" onclick="copyText(${JSON.stringify(x.contact)})">복사</button></div>`:""}
+          ${x.contact?`<div class="acc-meta">매장 연락처: ${hl(x.contact,q)}</div>`:""}
           ${x.symptomRoom?`<div class="acc-meta">증상룸: ${hl(x.symptomRoom,q)}</div>`:""}
           ${x.errorDetail?`<div class="acc-content"><b>오류 상세내용</b>\n${hl(x.errorDetail,q)}</div>`:""}
           ${x.history?`<div class="acc-content"><b>대양 처리이력</b>\n${hl(x.history,q)}</div>`:""}
-          ${x.assigneeTel?`<div class="acc-meta">지앤서비스 담당자: ${hl(x.assigneeTel,q)}<button class="copy" onclick="copyText(${JSON.stringify(x.assigneeTel)})">복사</button></div>`:""}
+          ${x.assigneeTel?`<div class="acc-meta">지앤서비스 담당자: ${hl(x.assigneeTel,q)}</div>`:""}
           <div class="acc-meta" style="margin-top:6px">상태: ${esc(normTSt(x.status))}</div>
         </div>
       </div>`;
